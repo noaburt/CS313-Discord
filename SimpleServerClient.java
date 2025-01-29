@@ -14,11 +14,16 @@ public class SimpleServerClient {
             clientSocket = serverSocket.accept();
             output = new PrintWriter(clientSocket.getOutputStream(), true);
             input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            String greeting = input.readLine();
-            if ("hello server".equals(greeting)) {
-                output.println("hello client");
-            } else {
+
+            String recieved;
+            while ((recieved = input.readLine()) != null) {
+                if ("hello server".equals(recieved)) {
+                    output.println("hello client");
+                    continue;
+                }
+
                 output.println("unrecognised greeting");
+                break;
             }
         } catch (IOException e) {
             e.printStackTrace();

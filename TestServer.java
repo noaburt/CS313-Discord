@@ -17,6 +17,9 @@ public class TestServer extends Thread {
         String response = client.sendMessage("hello server");
         System.out.println(response);
 
+        response = client.sendMessage("hello client");
+        System.out.println(response);
+
     }
 
 }

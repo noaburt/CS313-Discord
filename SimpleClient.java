@@ -19,6 +19,7 @@ public class SimpleClient {
 
     public String sendMessage(String msg) {
         output.println(msg);
+
         try {
             return input.readLine();
         } catch (IOException e) {
