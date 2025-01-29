@@ -4,23 +4,23 @@ import java.io.*;
 
 public class SimpleClient {
     private Socket clientSocket;
-    private PrintWriter out;
-    private BufferedReader in;
+    private PrintWriter output;
+    private BufferedReader input;
 
     public void startConnection(String ip, int port) {
         try {
             clientSocket = new Socket(ip, port);
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            output = new PrintWriter(clientSocket.getOutputStream(), true);
+            input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         } catch (IOException e) {
             System.err.println("Could not connect to " + ip + ":" + port);
         }
     }
 
     public String sendMessage(String msg) {
-        out.println(msg);
+        output.println(msg);
         try {
-            return in.readLine();
+            return input.readLine();
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -29,8 +29,8 @@ public class SimpleClient {
 
     public void stopConnection() {
         try {
-            in.close();
-            out.close();
+            input.close();
+            output.close();
             clientSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
