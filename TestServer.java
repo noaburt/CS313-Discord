@@ -1,4 +1,6 @@
 
+import javax.swing.JOptionPane;
+
 public class TestServer extends Thread {
 
     public static void main(String[] args) {
@@ -14,11 +16,18 @@ public class TestServer extends Thread {
         SimpleClient client = new SimpleClient();
         client.startConnection("127.0.0.1", 4444);
 
-        String response = client.sendMessage("hello server");
+        String message = JOptionPane.showInputDialog("Enter a greeting:");
+
+        String response = client.sendMessage(message);
         System.out.println(response);
 
-        response = client.sendMessage("hello client");
-        System.out.println(response);
+        String response2 = client.sendMessage("hello client");
+        System.out.println(response2);
+
+        String response3 = client.sendMessage("goodbye");
+        System.out.println(response3);
+
+        client.stopConnection();
 
     }
 

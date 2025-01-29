@@ -17,13 +17,12 @@ public class SimpleServerClient {
 
             String recieved;
             while ((recieved = input.readLine()) != null) {
-                if ("hello server".equals(recieved)) {
-                    output.println("hello client");
-                    continue;
+                if ("goodbye".equals(recieved)) {
+                    output.println("See you later");
+                    break;
                 }
 
                 output.println("unrecognised greeting");
-                break;
             }
         } catch (IOException e) {
             e.printStackTrace();
