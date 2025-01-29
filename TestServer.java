@@ -16,9 +16,7 @@ public class TestServer extends Thread {
         SimpleClient client = new SimpleClient();
         client.startConnection("127.0.0.1", 4444);
 
-        String message = JOptionPane.showInputDialog("Enter a greeting:");
-
-        String response = client.sendMessage(message);
+        String response = client.sendMessage(JOptionPane.showInputDialog("Enter a greeting:"));
         System.out.println(response);
 
         String response2 = client.sendMessage("hello client");

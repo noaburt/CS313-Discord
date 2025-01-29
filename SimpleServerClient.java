@@ -22,7 +22,7 @@ public class SimpleServerClient {
                     break;
                 }
 
-                output.println("unrecognised greeting");
+                output.println("Recieved: " + recieved);
             }
         } catch (IOException e) {
             e.printStackTrace();
