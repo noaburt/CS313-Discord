@@ -2,36 +2,35 @@
 import java.net.*;
 import java.io.*;
 
-public class SimpleClient {
+public class SimpleServerClient {
+    private ServerSocket serverSocket;
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
 
-    public void startConnection(String ip, int port) {
+    public void start(int port) {
         try {
-            clientSocket = new Socket(ip, port);
+            serverSocket = new ServerSocket(port);
+            clientSocket = serverSocket.accept();
             out = new PrintWriter(clientSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        } catch (IOException e) {
-            System.err.println("Could not connect to " + ip + ":" + port);
-        }
-    }
-
-    public String sendMessage(String msg) {
-        out.println(msg);
-        try {
-            return in.readLine();
+            String greeting = in.readLine();
+            if ("hello server".equals(greeting)) {
+                out.println("hello client");
+            } else {
+                out.println("unrecognised greeting");
+            }
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
     }
 
-    public void stopConnection() {
+    public void stop() {
         try {
             in.close();
             out.close();
             clientSocket.close();
+            serverSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
