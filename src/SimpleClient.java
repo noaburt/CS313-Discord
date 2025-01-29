@@ -15,8 +15,8 @@ public class SimpleClient {
 
     public String sendMessage(String message) {
         output.println(message);
-        String resp = input.readLine();
-        return resp;
+        String response = input.readLine();
+        return response;
     }
 
     public void closeConnection() {
