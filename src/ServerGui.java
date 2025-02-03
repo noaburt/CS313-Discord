@@ -54,6 +54,8 @@ public class ServerGui {
             startServerButton = new JButton("Start Server");
             startClientButton = new JButton("Open New Client");
             shutDownButton = new JButton("ShutDown Server");
+
+            startClientButton.setEnabled(false);
             shutDownButton.setEnabled(false);
 
             JPanel actionsPanel = new JPanel();
@@ -99,7 +101,7 @@ public class ServerGui {
         public void startServer(int port) {
             try {
                 checkStartServer();
-                addMessage("Creating server at port " + port + "\n");
+                addMessage("Creating server at port " + port);
 
                 serverSocket = new ServerSocket(port);
 
@@ -109,7 +111,15 @@ public class ServerGui {
                     Socket clientSocket = serverSocket.accept();
                     output = new DataOutputStream(clientSocket.getOutputStream());
                     input = new DataInputStream(clientSocket.getInputStream());
-                    addMessage("User Connected To Room\n");
+
+                    /* Welcome client to server */
+                    try {
+                        String welcomeMsg = "A client has joined, welcome!\n";
+                        output.writeUTF(welcomeMsg);
+                        addMessage(welcomeMsg);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
 
                     /* SwingWorker used for updating input / output stream */
                     createMessageWorker();
@@ -122,7 +132,7 @@ public class ServerGui {
 
         public void startClient(int serverPort) {
             checkStartClient();
-            addMessage("Creating client\n");
+            addMessage("Creating client...");
             new ClientGui(serverPort);
         }
 
@@ -166,6 +176,7 @@ public class ServerGui {
             }
 
             startServerButton.setEnabled(false);
+            startClientButton.setEnabled(true);
             shutDownButton.setEnabled(true);
         }
 
@@ -200,7 +211,7 @@ public class ServerGui {
             }
 
             startServerButton.setEnabled(true);
-            startClientButton.setEnabled(true);
+            startClientButton.setEnabled(false);
             shutDownButton.setEnabled(false);
         }
 

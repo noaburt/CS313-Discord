@@ -48,6 +48,7 @@ public class ClientGui {
 
             add(new JScrollPane(messageArea));
             add(messageField, BorderLayout.NORTH);
+            messageField.setEditable(false);
 
             shutDownButton = new JButton("Leave Server");
 
@@ -81,7 +82,7 @@ public class ClientGui {
                 messageField.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         try {
-                            String message = messageField.getText();
+                            String message = "Client: " + messageField.getText();
                             output.writeUTF(message);
                             addMessage(message);
                             messageField.setText(null);
@@ -92,6 +93,7 @@ public class ClientGui {
                 });
 
                 addMessage("Successfully connected to server\n");
+                messageField.setEditable(true);
                 shutDownButton.setEnabled(true);
                 createMessageWorker();
             } catch (IOException e) {
@@ -113,12 +115,17 @@ public class ClientGui {
                 return;
             }
 
+            messageField.setEditable(false);
             shutDownButton.setEnabled(false);
         }
 
         public void stopConnection() {
             if (clientSocket != null) {
                 try {
+                    String leaveMsg = "Client has left, goodbye!\n";
+                    output.writeUTF(leaveMsg);
+                    addMessage(leaveMsg);
+
                     clientSocket.close();
                     shutDownButton.setEnabled(false);
                 } catch (IOException ex) {
@@ -134,9 +141,10 @@ public class ClientGui {
             readWorker = new ReadMessageWorker(input, new ReadMessageWorker.MessageListener() {
                 @Override
                 public void didRecieveMessage(String message) {
-                    addMessage(message);
+                    addMessage("Server: " + message);
                 }
             });
+
             readWorker.addPropertyChangeListener(new PropertyChangeListener() {
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
@@ -152,6 +160,7 @@ public class ClientGui {
                     }
                 }
             });
+
             readWorker.execute();
         }
 
