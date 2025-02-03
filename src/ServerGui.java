@@ -98,12 +98,12 @@ public class ServerGui {
 
         public void startServer(int port) {
             try {
+                checkStartServer();
                 addMessage("Creating server at port " + port + "\n");
 
                 serverSocket = new ServerSocket(port);
 
                 addMessage("Server active...\n");
-                shutDownButton.setEnabled(true);
 
                 while (true) {
                     Socket clientSocket = serverSocket.accept();
@@ -121,17 +121,20 @@ public class ServerGui {
         }
 
         public void startClient(int serverPort) {
+            checkStartClient();
             addMessage("Creating client\n");
             new ClientGui(serverPort);
         }
 
         public void createMessageWorker() {
+
             readWorker = new ReadMessageWorker(input, new ReadMessageWorker.MessageListener() {
                 @Override
                 public void didRecieveMessage(String message) {
                     addMessage(message);
                 }
             });
+
             readWorker.addPropertyChangeListener(new PropertyChangeListener() {
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
@@ -142,12 +145,63 @@ public class ServerGui {
                         } catch (InterruptedException | ExecutionException ex) {
                             ex.printStackTrace();
                         }
-
-                        stopServer();
                     }
                 }
             });
+
             readWorker.execute();
+        }
+
+        public void checkStartServer() {
+            /* Check if a server is already started, make button inactive */
+
+            if (!EventQueue.isDispatchThread()) {
+                EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        checkStartServer();
+                    }
+                });
+                return;
+            }
+
+            startServerButton.setEnabled(false);
+            shutDownButton.setEnabled(true);
+        }
+
+        public void checkStartClient() {
+            /* Check if client has already started, make button inactive */
+
+            if (!EventQueue.isDispatchThread()) {
+                EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        checkStartClient();
+                    }
+                });
+                return;
+            }
+
+            // REMOVE WHEN MULTIPLE CLIENTS CAN CONNECT ---------------------------
+            startClientButton.setEnabled(false);
+        }
+
+        public void checkShutdown() {
+            /* Check if server has already shutdown, make buttons active */
+
+            if (!EventQueue.isDispatchThread()) {
+                EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        checkShutdown();
+                    }
+                });
+                return;
+            }
+
+            startServerButton.setEnabled(true);
+            startClientButton.setEnabled(true);
+            shutDownButton.setEnabled(false);
         }
 
         public void stopServer() {
@@ -174,6 +228,7 @@ public class ServerGui {
             }
 
             addMessage("Server stopped\n");
+            checkShutdown();
         }
 
     }

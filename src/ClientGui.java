@@ -50,7 +50,6 @@ public class ClientGui {
             add(messageField, BorderLayout.NORTH);
 
             shutDownButton = new JButton("Leave Server");
-            shutDownButton.setEnabled(false);
 
             JPanel actionsPanel = new JPanel();
             actionsPanel.add(shutDownButton);
@@ -101,30 +100,34 @@ public class ClientGui {
             }
         }
 
+        public void checkShutdown() {
+            /* Check if server has already shutdown, make buttons active */
+
+            if (!EventQueue.isDispatchThread()) {
+                EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        checkShutdown();
+                    }
+                });
+                return;
+            }
+
+            shutDownButton.setEnabled(false);
+        }
+
         public void stopConnection() {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            if (output != null) {
-                try {
-                    output.close();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
             if (clientSocket != null) {
                 try {
                     clientSocket.close();
+                    shutDownButton.setEnabled(false);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
             }
 
             addMessage("Connection closed\n");
+            checkShutdown();
         }
 
         public void createMessageWorker() {
