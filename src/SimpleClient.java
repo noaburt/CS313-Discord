@@ -13,20 +13,20 @@ import java.util.concurrent.ExecutionException;
 public class SimpleClient extends JPanel {
     /* Class for all clients to be used */
 
-    private int serverPort;
+    public int serverPort;
 
-    private Socket clientSocket;
+    public Socket clientSocket;
 
-    private DataInputStream input;
-    private DataOutputStream output;
+    public DataInputStream input;
+    public DataOutputStream output;
 
-    private ReadMessageWorker messageWorker;
-    private String clientName;
+    public ReadMessageWorker messageWorker;
+    public String clientName;
 
-    private JTextArea messageArea;
-    private JTextField messageField;
-    private JButton shutdownButton;
-    private JButton connectButton;
+    public JTextArea messageArea;
+    public JTextField messageField;
+    public JButton shutdownButton;
+    public JButton connectButton;
 
     public SimpleClient(int port, String thisName) {
         /* Setup window when client instance is created */
@@ -89,7 +89,6 @@ public class SimpleClient extends JPanel {
             String sendMsg = clientName + ": " + message;
             output.writeUTF(sendMsg);
             addMessage(sendMsg);
-            messageField.setText(null);
         } catch (IOException e) {
             addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
             e.printStackTrace();
@@ -107,10 +106,10 @@ public class SimpleClient extends JPanel {
             input = new DataInputStream(clientSocket.getInputStream());
 
             /* If connects successfully, allow sending messages */
-            messageField.setEditable(true);
             messageField.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     sendMessage(messageField.getText());
+                    messageField.setText(null);
                 }
             });
 
@@ -131,8 +130,8 @@ public class SimpleClient extends JPanel {
             try {
                 sendMessage("has left the server, goodbye\n");
 
-                clientSocket.close();
                 shutdownButton.setEnabled(false);
+                clientSocket.close();
             } catch (IOException e) {
                 addMessage("Error: Failed to leave server\n(" + e.getMessage() + ")");
                 e.printStackTrace();
