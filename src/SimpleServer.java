@@ -35,7 +35,10 @@ public class SimpleServer extends SimpleClient {
 
         shutdownButton = new JButton("Shutdown Server");
         shutdownButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) { shutdown(); }
+            public void actionPerformed(ActionEvent e) {
+                sendMessage("Server shutting down...");
+                shutdown();
+            }
         });
 
         connectButton = new JButton("Start server");

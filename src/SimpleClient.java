@@ -63,12 +63,17 @@ public class SimpleClient extends JPanel {
 
         shutdownButton = new JButton("Leave Server");
         shutdownButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) { shutdown(); }
+            public void actionPerformed(ActionEvent e) {
+                sendMessage("has left the server, goodbye\n");
+                shutdown();
+            }
         });
 
         connectButton = new JButton("Connect to server");
         connectButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) { connect(); }
+            public void actionPerformed(ActionEvent e) {
+                connect();
+            }
         });
 
         panel.add(shutdownButton);
@@ -126,19 +131,13 @@ public class SimpleClient extends JPanel {
     public void shutdown() {
         /* Method for completing all steps for shutting down client */
 
-        if (clientSocket != null) {
-            try {
-                sendMessage("has left the server, goodbye\n");
-
-                shutdownButton.setEnabled(false);
-                clientSocket.close();
-            } catch (IOException e) {
-                addMessage("Error: Failed to leave server\n(" + e.getMessage() + ")");
-                e.printStackTrace();
-            }
+        try {
+            clientSocket.close();
+        } catch (IOException e) {
+            addMessage("Error: Failed to leave server\n(" + e.getMessage() + ")");
+            e.printStackTrace();
         }
 
-        addMessage("Connection closed\n");
         checkShutdown();
     }
 
@@ -195,7 +194,9 @@ public class SimpleClient extends JPanel {
                         ex.printStackTrace();
                     }
 
-                    shutdown();
+                    /* Shutdown when client ceases input stream */
+                    // THIS IS A TERRIBLE WAY TO DO THIS, CHEATING
+                    if (!clientName.equals("Server")) { shutdown(); }
                 }
             }
         });
