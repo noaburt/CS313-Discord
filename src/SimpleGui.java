@@ -9,7 +9,7 @@ public class SimpleGui {
 
         EventQueue.invokeLater(new Runnable() {
             public void run() {
-                JFrame clientFrame = new JFrame("Simple Gui");
+                JFrame clientFrame = new JFrame("Discord");
                 clientFrame.add(guiPanel);
                 clientFrame.pack();
                 clientFrame.setLocationRelativeTo(null);

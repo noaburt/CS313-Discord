@@ -103,7 +103,7 @@ public class ClientGui {
         }
 
         public void checkShutdown() {
-            /* Check if server has already shutdown, make buttons active */
+            /* Check if client has already shutdown, make buttons active */
 
             if (!EventQueue.isDispatchThread()) {
                 EventQueue.invokeLater(new Runnable() {
