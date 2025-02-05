@@ -93,7 +93,7 @@ public class SimpleClient extends JPanel {
         try {
             String sendMsg = clientName + ": " + message;
             output.writeUTF(sendMsg);
-            addMessage(sendMsg);
+            //addMessage(sendMsg);
         } catch (IOException e) {
             addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
             e.printStackTrace();
