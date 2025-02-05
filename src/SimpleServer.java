@@ -2,14 +2,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ExecutionException;
 
 public class SimpleServer extends SimpleClient {
 
@@ -30,19 +27,6 @@ public class SimpleServer extends SimpleClient {
         add(new JScrollPane(messageArea));
     }
 
-    public void sendMessage(String message, boolean ext) {
-        /* Method for sending a message to the server, including name and displaying on gui */
-
-        try {
-            String sendMsg = (ext ? "" : clientName + ": ") + message;
-            output.writeUTF(sendMsg);
-            addMessage(sendMsg);
-        } catch (IOException e) {
-            addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public JPanel makePanel() {
         /* Method for adding only required buttons to window */
@@ -52,7 +36,7 @@ public class SimpleServer extends SimpleClient {
         shutdownButton = new JButton("Shutdown Server");
         shutdownButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                sendMessage("Server shutting down...", false);
+                sendMessage("Server shutting down...");
                 shutdown();
             }
         });
@@ -87,26 +71,14 @@ public class SimpleServer extends SimpleClient {
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
+                output = new DataOutputStream(clientSocket.getOutputStream());
+                input = new DataInputStream(clientSocket.getInputStream());
 
-                new Thread(new Runnable() {
-                    public void run() {
-                        try {
-                            output = new DataOutputStream(clientSocket.getOutputStream());
-                            input = new DataInputStream(clientSocket.getInputStream());
+                /* Welcome client to server */
+                sendMessage("A client has joined, welcome!\n");
 
-                            /* Welcome client to server */
-                            sendMessage("A client has joined, welcome!\n", false);
-
-                            /* SwingWorker used for updating input / output stream */
-                            createMessageWorker();
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
-
-
+                /* SwingWorker used for updating input / output stream */
+                createMessageWorker();
             }
 
         } catch (IOException e) {
@@ -174,38 +146,6 @@ public class SimpleServer extends SimpleClient {
 
         addMessage("Server stopped\n");
         checkShutdown();
-    }
-
-    @Override
-    public void createMessageWorker() {
-        /* Method for creating a message worker for reading messages from server */
-
-        messageWorker = new ReadMessageWorker(input, new ReadMessageWorker.MessageListener() {
-            @Override
-            public void didRecieveMessage(String message) {
-                sendMessage(message, true);
-            }
-        });
-
-        messageWorker.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                System.out.println(messageWorker.getState());
-                if (messageWorker.getState() == SwingWorker.StateValue.DONE) {
-                    try {
-                        messageWorker.get();
-                    } catch (InterruptedException | ExecutionException ex) {
-                        ex.printStackTrace();
-                    }
-
-                    /* Shutdown when client ceases input stream */
-                    // THIS IS A TERRIBLE WAY TO DO THIS, CHEATING
-                    if (!clientName.equals("Server")) { shutdown(); }
-                }
-            }
-        });
-
-        messageWorker.execute();
     }
 
 }
