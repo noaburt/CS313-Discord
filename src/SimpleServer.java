@@ -17,6 +17,7 @@ public class SimpleServer extends SimpleClient {
 
     public SimpleServer(int port) {
         super(port, "Server");
+
     }
 
     @Override
