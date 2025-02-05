@@ -84,7 +84,21 @@ public class SimpleClient extends JPanel {
     public void addMessage(String message) {
         /* Method for appending a message to the display, not for sending */
 
-        messageArea.append(message + "\n");
+        String[] messageSplit = message.split(",");
+
+        if (messageSplit.length < 2) {return;}
+
+        if (messageSplit.length == 2) {
+            if (!messageSplit[0].equals(clientName)) {
+                messageArea.append(message + "\n");
+            }
+
+            return;
+        }
+
+        if (!messageSplit[1].equals(clientName)) {
+            messageArea.append(messageSplit[1] + messageSplit[2] + "\n");
+        }
     }
 
     public void sendMessage(String message) {
@@ -93,7 +107,7 @@ public class SimpleClient extends JPanel {
         try {
             String sendMsg = clientName + ": " + message;
             output.writeUTF(sendMsg);
-            //addMessage(sendMsg);
+            addMessage(sendMsg);
         } catch (IOException e) {
             addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
             e.printStackTrace();

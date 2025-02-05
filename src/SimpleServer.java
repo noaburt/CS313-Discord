@@ -30,19 +30,6 @@ public class SimpleServer extends SimpleClient {
         add(new JScrollPane(messageArea));
     }
 
-    public void sendMessage(String message, boolean ext) {
-        /* Method for sending a message to the server, including name and displaying on gui */
-
-        try {
-            String sendMsg = (ext ? "" : clientName + ": ") + message;
-            output.writeUTF(sendMsg);
-            addMessage(sendMsg);
-        } catch (IOException e) {
-            addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public JPanel makePanel() {
         /* Method for adding only required buttons to window */
@@ -52,7 +39,7 @@ public class SimpleServer extends SimpleClient {
         shutdownButton = new JButton("Shutdown Server");
         shutdownButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                sendMessage("Server shutting down...", false);
+                sendMessage("Server shutting down...");
                 shutdown();
             }
         });
@@ -71,6 +58,13 @@ public class SimpleServer extends SimpleClient {
         panel.add(shutdownButton);
         panel.add(connectButton);
         return panel;
+    }
+
+    @Override
+    public void addMessage(String message) {
+        /* Method for appending a message to the display, not for sending */
+
+        messageArea.append(message + "\n");
     }
 
     @Override
@@ -95,7 +89,7 @@ public class SimpleServer extends SimpleClient {
                             input = new DataInputStream(clientSocket.getInputStream());
 
                             /* Welcome client to server */
-                            sendMessage("A client has joined, welcome!\n", false);
+                            sendMessage("A client has joined, welcome!\n");
 
                             /* SwingWorker used for updating input / output stream */
                             createMessageWorker();
@@ -183,7 +177,8 @@ public class SimpleServer extends SimpleClient {
         messageWorker = new ReadMessageWorker(input, new ReadMessageWorker.MessageListener() {
             @Override
             public void didRecieveMessage(String message) {
-                sendMessage(message, true);
+                addMessage(message);
+                sendMessage(message);
             }
         });
 
