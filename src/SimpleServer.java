@@ -79,6 +79,7 @@ public class SimpleServer extends SimpleClient {
         try {
             checkStartServer();
             addMessage("Creating server at port " + serverPort);
+
             serverSocket = new ServerSocket(serverPort);
 
             addMessage("Server active...\n");
