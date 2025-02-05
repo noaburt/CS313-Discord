@@ -1,7 +1,7 @@
 
 import javax.swing.JOptionPane;
 
-public class TestServer extends Thread {
+public class TestServer {
 
     public static void main(String[] args) {
         SimpleGui client1 = new SimpleGui(new SimpleClient(4444, "Client 1"));
