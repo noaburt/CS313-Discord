@@ -22,7 +22,7 @@ public class SimpleClient extends JPanel {
     public Socket clientSocket;
 
     public DataInputStream input;
-    public DataOutputStream output;
+    private DataOutputStream output;
 
     public JTextArea messageArea;
     public JTextField messageField;
@@ -73,7 +73,7 @@ public class SimpleClient extends JPanel {
         shutdownButton = new JButton("Leave Server");
         shutdownButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                sendMessage("has left the server, goodbye\n");
+                sendMessage("has left the server\n");
                 shutdown();
             }
         });
