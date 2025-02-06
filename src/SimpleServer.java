@@ -11,15 +11,19 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 public class SimpleServer extends SimpleClient {
 
     public ServerSocket serverSocket;
 
+    public ArrayList<DataOutputStream> output;
+
     public SimpleServer(int port) {
         super(port, "Server");
 
+        output = new ArrayList<>();
     }
 
     @Override
@@ -88,7 +92,7 @@ public class SimpleServer extends SimpleClient {
                 new Thread(new Runnable() {
                     public void run() {
                         try {
-                            output = new DataOutputStream(clientSocket.getOutputStream());
+                            output.add(new DataOutputStream(clientSocket.getOutputStream()));
                             input = new DataInputStream(clientSocket.getInputStream());
 
                             while (true) {
@@ -148,7 +152,10 @@ public class SimpleServer extends SimpleClient {
 
         try {
             String sendMsg = clientName + ": " + message;
-            output.writeUTF(sendMsg);
+
+            for (DataOutputStream eachOutput : output) {
+                eachOutput.writeUTF(sendMsg);
+            }
 
             messageArea.append(sendMsg + "\n");
         } catch (IOException e) {
@@ -161,7 +168,9 @@ public class SimpleServer extends SimpleClient {
         /* Method for sending a message to the server, including name and displaying on gui */
 
         try {
-            output.writeUTF(message);
+            for (DataOutputStream eachOutput : output) {
+                eachOutput.writeUTF(message);
+            }
 
             messageArea.append(message + "\n");
         } catch (IOException e) {
@@ -182,7 +191,10 @@ public class SimpleServer extends SimpleClient {
 
         if (output != null) {
             try {
-                output.close();
+                for (DataOutputStream eachOutput : output) {
+                    eachOutput.close();
+                }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
