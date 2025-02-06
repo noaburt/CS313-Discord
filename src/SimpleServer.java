@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.DataInputStream;
@@ -27,7 +29,15 @@ public class SimpleServer extends SimpleClient {
         messageArea = new JTextArea(10, 20);
         messageArea.setEditable(false);
 
-        add(new JScrollPane(messageArea));
+        /* Keep scroll always showing the newest messages */
+        JScrollPane scrollPane = new JScrollPane(messageArea);
+        scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+            }
+        });
+
+        add(scrollPane);
     }
 
     @Override
@@ -39,7 +49,7 @@ public class SimpleServer extends SimpleClient {
         shutdownButton = new JButton("Shutdown Server");
         shutdownButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                sendMessage("Server shutting down...");
+                sendMessage("shutting down...");
                 shutdown();
             }
         });
@@ -58,13 +68,6 @@ public class SimpleServer extends SimpleClient {
         panel.add(shutdownButton);
         panel.add(connectButton);
         return panel;
-    }
-
-    @Override
-    public void addMessage(String message) {
-        /* Method for appending a message to the display, not for sending */
-
-        messageArea.append(message + "\n");
     }
 
     @Override
@@ -88,19 +91,18 @@ public class SimpleServer extends SimpleClient {
                             output = new DataOutputStream(clientSocket.getOutputStream());
                             input = new DataInputStream(clientSocket.getInputStream());
 
-                            /* Welcome client to server */
-                            sendMessage("A client has joined, welcome!\n");
+                            while (true) {
+                                String inputLine = input.readUTF();
 
-                            /* SwingWorker used for updating input / output stream */
-                            createMessageWorker();
+                                /* Resend message to all clients */
+                                resendMessage(inputLine);
+                            }
 
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
                 }).start();
-
-
             }
 
         } catch (IOException e) {
@@ -141,6 +143,34 @@ public class SimpleServer extends SimpleClient {
     }
 
     @Override
+    public void sendMessage(String message) {
+        /* Method for sending a message to the server, including name and displaying on gui */
+
+        try {
+            String sendMsg = clientName + ": " + message;
+            output.writeUTF(sendMsg);
+
+            messageArea.append(sendMsg + "\n");
+        } catch (IOException e) {
+            addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
+            e.printStackTrace();
+        }
+    }
+
+    public void resendMessage(String message) {
+        /* Method for sending a message to the server, including name and displaying on gui */
+
+        try {
+            output.writeUTF(message);
+
+            messageArea.append(message + "\n");
+        } catch (IOException e) {
+            addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void shutdown() {
         if (input != null) {
             try {
@@ -169,38 +199,4 @@ public class SimpleServer extends SimpleClient {
         addMessage("Server stopped\n");
         checkShutdown();
     }
-
-    @Override
-    public void createMessageWorker() {
-        /* Method for creating a message worker for reading messages from server */
-
-        messageWorker = new ReadMessageWorker(input, new ReadMessageWorker.MessageListener() {
-            @Override
-            public void didRecieveMessage(String message) {
-                addMessage(message);
-                sendMessage(message);
-            }
-        });
-
-        messageWorker.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                System.out.println(messageWorker.getState());
-                if (messageWorker.getState() == SwingWorker.StateValue.DONE) {
-                    try {
-                        messageWorker.get();
-                    } catch (InterruptedException | ExecutionException ex) {
-                        ex.printStackTrace();
-                    }
-
-                    /* Shutdown when client ceases input stream */
-                    // THIS IS A TERRIBLE WAY TO DO THIS, CHEATING
-                    if (!clientName.equals("Server")) { shutdown(); }
-                }
-            }
-        });
-
-        messageWorker.execute();
-    }
-
 }

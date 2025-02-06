@@ -2,10 +2,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.ExecutionException;
@@ -14,14 +17,12 @@ public class SimpleClient extends JPanel {
     /* Class for all clients to be used */
 
     public int serverPort;
+    public String clientName;
 
     public Socket clientSocket;
 
     public DataInputStream input;
     public DataOutputStream output;
-
-    public ReadMessageWorker messageWorker;
-    public String clientName;
 
     public JTextArea messageArea;
     public JTextField messageField;
@@ -52,7 +53,15 @@ public class SimpleClient extends JPanel {
         messageField = new JTextField(10);
         messageField.setEditable(false);
 
-        add(new JScrollPane(messageArea));
+        /* Keep scroll always showing the newest messages */
+        JScrollPane scrollPane = new JScrollPane(messageArea);
+        scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+            }
+        });
+
+        add(scrollPane);
         add(messageField, BorderLayout.NORTH);
     }
 
@@ -72,7 +81,11 @@ public class SimpleClient extends JPanel {
         connectButton = new JButton("Connect to server");
         connectButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                connect();
+                new Thread(new Runnable() {
+                    public void run() {
+                        connect();
+                    }
+                }).start();
             }
         });
 
@@ -84,30 +97,18 @@ public class SimpleClient extends JPanel {
     public void addMessage(String message) {
         /* Method for appending a message to the display, not for sending */
 
-        String[] messageSplit = message.split(",");
-
-        if (messageSplit.length < 2) {return;}
-
-        if (messageSplit.length == 2) {
-            if (!messageSplit[0].equals(clientName)) {
-                messageArea.append(message + "\n");
-            }
-
-            return;
-        }
-
-        if (!messageSplit[1].equals(clientName)) {
-            messageArea.append(messageSplit[1] + messageSplit[2] + "\n");
-        }
+        messageArea.append(message + "\n");
     }
 
     public void sendMessage(String message) {
         /* Method for sending a message to the server, including name and displaying on gui */
 
+        /* No blank messages */
+        if (message.trim().equals("")) { return; }
+
         try {
             String sendMsg = clientName + ": " + message;
             output.writeUTF(sendMsg);
-            addMessage(sendMsg);
         } catch (IOException e) {
             addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
             e.printStackTrace();
@@ -117,13 +118,20 @@ public class SimpleClient extends JPanel {
     public void connect() {
         /* Method to attempt to connect to server */
 
-        try {
-            addMessage("Connecting to server...\n");
+        addMessage("Connecting to server...");
 
+        try {
             clientSocket = new Socket("localhost", serverPort);
             output = new DataOutputStream(clientSocket.getOutputStream());
             input = new DataInputStream(clientSocket.getInputStream());
 
+            sendMessage("has joined the server\n");
+        } catch (IOException e) {
+            addMessage("No server found: localhost@" + serverPort + "\n");
+            shutdown();
+        }
+
+        try {
             /* If connects successfully, allow sending messages */
             messageField.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -133,11 +141,17 @@ public class SimpleClient extends JPanel {
             });
 
             enableButtons();
-            createMessageWorker();
-
             addMessage("Successfully connected to server\n");
+
+            while (true) {
+                /* Constantly read for messages and show */
+                String inputLine = input.readUTF();
+
+                addMessage(inputLine);
+            }
         } catch (IOException e) {
-            addMessage("No server found: localhost@" + serverPort + "\n");
+            /* Client has left server or server has closed */
+            addMessage("Leaving server, goodbye...\n");
             shutdown();
         }
     }
@@ -185,36 +199,5 @@ public class SimpleClient extends JPanel {
         messageField.setEditable(true);
         connectButton.setEnabled(false);
         shutdownButton.setEnabled(true);
-    }
-
-    public void createMessageWorker() {
-        /* Method for creating a message worker for reading messages from server */
-
-        messageWorker = new ReadMessageWorker(input, new ReadMessageWorker.MessageListener() {
-            @Override
-            public void didRecieveMessage(String message) {
-                addMessage(message);
-            }
-        });
-
-        messageWorker.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                System.out.println(messageWorker.getState());
-                if (messageWorker.getState() == SwingWorker.StateValue.DONE) {
-                    try {
-                        messageWorker.get();
-                    } catch (InterruptedException | ExecutionException ex) {
-                        ex.printStackTrace();
-                    }
-
-                    /* Shutdown when client ceases input stream */
-                    // THIS IS A TERRIBLE WAY TO DO THIS, CHEATING
-                    if (!clientName.equals("Server")) { shutdown(); }
-                }
-            }
-        });
-
-        messageWorker.execute();
     }
 }
