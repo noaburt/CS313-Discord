@@ -12,18 +12,20 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class SimpleServer extends SimpleClient {
 
     public ServerSocket serverSocket;
 
-    public ArrayList<DataOutputStream> output;
+    public LinkedHashMap<String, DataOutputStream> output;
 
     public SimpleServer(int port) {
         super(port, "Server");
 
-        output = new ArrayList<>();
+        output = new LinkedHashMap<>();
     }
 
     @Override
@@ -92,7 +94,7 @@ public class SimpleServer extends SimpleClient {
                 new Thread(new Runnable() {
                     public void run() {
                         try {
-                            output.add(new DataOutputStream(clientSocket.getOutputStream()));
+                            output.put("Client", new DataOutputStream(clientSocket.getOutputStream())); // ----------------------------------------------------------
                             input = new DataInputStream(clientSocket.getInputStream());
 
                             while (true) {
@@ -153,8 +155,8 @@ public class SimpleServer extends SimpleClient {
         try {
             String sendMsg = clientName + ": " + message;
 
-            for (DataOutputStream eachOutput : output) {
-                eachOutput.writeUTF(sendMsg);
+            for (Map.Entry<String, DataOutputStream> eachOutput : output.entrySet()) {
+                eachOutput.getValue().writeUTF(sendMsg);
             }
 
             messageArea.append(sendMsg + "\n");
@@ -168,8 +170,8 @@ public class SimpleServer extends SimpleClient {
         /* Method for sending a message to the server, including name and displaying on gui */
 
         try {
-            for (DataOutputStream eachOutput : output) {
-                eachOutput.writeUTF(message);
+            for (Map.Entry<String, DataOutputStream> eachOutput : output.entrySet()) {
+                eachOutput.getValue().writeUTF(message);
             }
 
             messageArea.append(message + "\n");
@@ -191,8 +193,8 @@ public class SimpleServer extends SimpleClient {
 
         if (output != null) {
             try {
-                for (DataOutputStream eachOutput : output) {
-                    eachOutput.close();
+                for (Map.Entry<String, DataOutputStream> eachOutput : output.entrySet()) {
+                    eachOutput.getValue().close();
                 }
 
             } catch (IOException e) {
