@@ -102,7 +102,7 @@ public class SimpleServer extends SimpleClient {
 
                             System.out.println(clientName);
 
-                            output.put(clientName, new DataOutputStream(clientSocket.getOutputStream())); // GET NAME SOMEHOW? ----------------------------------------------------------
+                            output.put(clientName, new DataOutputStream(clientSocket.getOutputStream()));
 
                             while (true) {
                                 String inputLine = input.readUTF();
