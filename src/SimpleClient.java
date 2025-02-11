@@ -125,10 +125,13 @@ public class SimpleClient extends JPanel {
             output = new DataOutputStream(clientSocket.getOutputStream());
             input = new DataInputStream(clientSocket.getInputStream());
 
+            output.writeUTF("{;" + clientName + ";}");
+
             sendMessage("has joined the server\n");
         } catch (IOException e) {
             addMessage("No server found: localhost@" + serverPort + "\n");
             shutdown();
+            return;
         }
 
         try {

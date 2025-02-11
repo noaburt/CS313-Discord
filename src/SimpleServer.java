@@ -94,8 +94,15 @@ public class SimpleServer extends SimpleClient {
                 new Thread(new Runnable() {
                     public void run() {
                         try {
-                            output.put("Client", new DataOutputStream(clientSocket.getOutputStream())); // ----------------------------------------------------------
                             input = new DataInputStream(clientSocket.getInputStream());
+
+                            /* Client data in form {;name;} */
+                            String readClientData = input.readUTF();
+                            String clientName = readClientData.split(";")[1];
+
+                            System.out.println(clientName);
+
+                            output.put(clientName, new DataOutputStream(clientSocket.getOutputStream())); // GET NAME SOMEHOW? ----------------------------------------------------------
 
                             while (true) {
                                 String inputLine = input.readUTF();
@@ -170,7 +177,16 @@ public class SimpleServer extends SimpleClient {
         /* Method for sending a message to the server, including name and displaying on gui */
 
         try {
+            /* If client leaves server, remove from output set */
+            System.out.println(message.split(":")[1]);
+
+            if (message.split(":")[1].equals(" has left the server\n")) {
+                System.out.println(message.split(":")[0] + " has left");
+                output.remove(message.split(":")[0]);
+            }
+
             for (Map.Entry<String, DataOutputStream> eachOutput : output.entrySet()) {
+                System.out.println("Sending message to " + eachOutput.getKey());
                 eachOutput.getValue().writeUTF(message);
             }
 
