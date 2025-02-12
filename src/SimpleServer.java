@@ -89,11 +89,11 @@ public class SimpleServer extends SimpleClient {
             addMessage("Server active...\n");
 
             while (true) {
-                Socket clientSocket = serverSocket.accept();
-
                 new Thread(new Runnable() {
                     public void run() {
                         try {
+                            Socket clientSocket = serverSocket.accept();
+
                             input = new DataInputStream(clientSocket.getInputStream());
 
                             /* Client data in form {;name;} */
