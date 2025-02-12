@@ -4,28 +4,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class SimpleServer extends SimpleClient {
 
     public ServerSocket serverSocket;
 
-    public LinkedHashMap<String, DataOutputStream> output;
+    public ArrayList<ClientHandler> clients;
 
     public SimpleServer(int port) {
         super(port, "Server");
 
-        output = new LinkedHashMap<>();
+        clients = new ArrayList<>();
     }
 
     @Override
@@ -89,37 +84,87 @@ public class SimpleServer extends SimpleClient {
             addMessage("Server active...\n");
 
             while (true) {
-                new Thread(new Runnable() {
-                    public void run() {
-                        try {
-                            Socket clientSocket = serverSocket.accept();
+                clients.add(new ClientHandler(serverSocket.accept()));
+                clients.getLast().start();
 
-                            input = new DataInputStream(clientSocket.getInputStream());
-
-                            /* Client data in form {;name;} */
-                            String readClientData = input.readUTF();
-                            String clientName = readClientData.split(";")[1];
-
-                            System.out.println(clientName);
-
-                            output.put(clientName, new DataOutputStream(clientSocket.getOutputStream()));
-
-                            while (true) {
-                                String inputLine = input.readUTF();
-
-                                /* Resend message to all clients */
-                                resendMessage(inputLine);
-                            }
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
             }
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private class ClientHandler extends Thread {
+        private Socket clientSocket;
+        private DataInputStream thisInput;
+        private DataOutputStream thisOutput;
+        private String clientName;
+
+        public boolean closed;
+
+        public ClientHandler(Socket clientSocket) {
+            this.clientSocket = clientSocket;
+            this.closed = false;
+        }
+
+        public void run() {
+            /* First message is always name etc */
+            try {
+                thisInput = new DataInputStream(this.clientSocket.getInputStream());
+
+                /* Client data in form {;name;} */
+                String readClientData = thisInput.readUTF();
+                this.clientName = readClientData.split(";")[1];
+
+                thisOutput = new DataOutputStream(clientSocket.getOutputStream());
+
+                System.out.println(clientName);
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("FAILED TO START DATA STREAM");
+                shutdownClient();
+            }
+
+            String inputLine;
+
+            try {
+                while (true) {
+                    /* Read input and resend */
+                    inputLine = thisInput.readUTF();
+
+                    /* Resend message to all clients */
+                    resendMessage(inputLine);
+
+                    if (inputLine.split(":")[1].equals(" has left the server\n")) {
+                        System.out.println(clientName + " has left, client handler shutdown");
+                        this.shutdownClient();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("CONNECTION CLOSED");
+                shutdownClient();
+            }
+        }
+
+        public void shutdownClient() {
+            if (thisInput != null) {
+                try {
+                    thisInput.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (thisOutput != null) {
+                try {
+                    thisOutput.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            this.closed = true;
         }
     }
 
@@ -157,13 +202,15 @@ public class SimpleServer extends SimpleClient {
 
     @Override
     public void sendMessage(String message) {
-        /* Method for sending a message to the server, including name and displaying on gui */
+        /* Method for sending a message from the server, with server name */
 
         try {
             String sendMsg = clientName + ": " + message;
 
-            for (Map.Entry<String, DataOutputStream> eachOutput : output.entrySet()) {
-                eachOutput.getValue().writeUTF(sendMsg);
+            for (ClientHandler client : clients) {
+                if (!client.closed) {
+                    client.thisOutput.writeUTF(message);
+                }
             }
 
             messageArea.append(sendMsg + "\n");
@@ -174,20 +221,13 @@ public class SimpleServer extends SimpleClient {
     }
 
     public void resendMessage(String message) {
-        /* Method for sending a message to the server, including name and displaying on gui */
+        /* Method for sending a message to all clients */
 
         try {
-            /* If client leaves server, remove from output set */
-            System.out.println(message.split(":")[1]);
-
-            if (message.split(":")[1].equals(" has left the server\n")) {
-                System.out.println(message.split(":")[0] + " has left");
-                output.remove(message.split(":")[0]);
-            }
-
-            for (Map.Entry<String, DataOutputStream> eachOutput : output.entrySet()) {
-                System.out.println("Sending message to " + eachOutput.getKey());
-                eachOutput.getValue().writeUTF(message);
+            for (ClientHandler client : clients) {
+                if (!client.closed) {
+                    client.thisOutput.writeUTF(message);
+                }
             }
 
             messageArea.append(message + "\n");
@@ -207,15 +247,8 @@ public class SimpleServer extends SimpleClient {
             }
         }
 
-        if (output != null) {
-            try {
-                for (Map.Entry<String, DataOutputStream> eachOutput : output.entrySet()) {
-                    eachOutput.getValue().close();
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        for (ClientHandler client : clients) {
+            client.shutdownClient();
         }
 
         if (serverSocket != null) {
