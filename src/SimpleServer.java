@@ -41,6 +41,12 @@ public class SimpleServer extends SimpleClient {
         add(scrollPane);
     }
 
+    public void catchMessage(String message, boolean error) {
+        /* Nice way of clarifying errors from try-catch blocks */
+
+        System.out.println((error ? "Error: " : "Caught: ") + message);
+    }
+
     @Override
     public JPanel makePanel() {
         /* Method for adding only required buttons to window */
@@ -83,15 +89,21 @@ public class SimpleServer extends SimpleClient {
 
             addMessage("Server active...\n");
 
+        } catch (IOException e) {
+            //e.printStackTrace();
+            catchMessage("Connecting to server [" + e.getMessage() + "]", true);
+        }
+
+        try {
             while (true) {
                 clients.add(new ClientHandler(serverSocket.accept()));
                 clients.getLast().start();
-
             }
-
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            catchMessage("Client socket accept", true);
         }
+
     }
 
     private class ClientHandler extends Thread {
@@ -117,11 +129,10 @@ public class SimpleServer extends SimpleClient {
                 this.clientName = readClientData.split(";")[1];
 
                 thisOutput = new DataOutputStream(clientSocket.getOutputStream());
-
-                System.out.println(clientName);
             } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println("FAILED TO START DATA STREAM");
+                //e.printStackTrace();
+                catchMessage("Starting data stream", true);
+
                 shutdownClient();
             }
 
@@ -136,13 +147,14 @@ public class SimpleServer extends SimpleClient {
                     resendMessage(inputLine);
 
                     if (inputLine.split(":")[1].equals(" has left the server\n")) {
-                        System.out.println(clientName + " has left, client handler shutdown");
+                        //System.out.println(clientName + " has left, client handler shutdown");
                         this.shutdownClient();
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println("CONNECTION CLOSED");
+                //e.printStackTrace();
+                catchMessage("Connection closed", false);
+
                 shutdownClient();
             }
         }
@@ -152,7 +164,8 @@ public class SimpleServer extends SimpleClient {
                 try {
                     thisInput.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
+                    catchMessage("Closing client input stream", true);
                 }
             }
 
@@ -160,7 +173,8 @@ public class SimpleServer extends SimpleClient {
                 try {
                     thisOutput.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
+                    catchMessage("Closing client output stream", true);
                 }
             }
 
@@ -216,7 +230,9 @@ public class SimpleServer extends SimpleClient {
             messageArea.append(sendMsg + "\n");
         } catch (IOException e) {
             addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
-            e.printStackTrace();
+
+            //e.printStackTrace();
+            catchMessage("Sending message from server [" + e.getMessage() + "]", true);
         }
     }
 
@@ -232,8 +248,10 @@ public class SimpleServer extends SimpleClient {
 
             messageArea.append(message + "\n");
         } catch (IOException e) {
-            addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
-            e.printStackTrace();
+            addMessage("Error: Failed to resend message '" + message + "'\n(" + e.getMessage() + ")");
+
+            //e.printStackTrace();
+            catchMessage("Resending message to clients [" + e.getMessage() + "]", true);
         }
     }
 
@@ -243,7 +261,8 @@ public class SimpleServer extends SimpleClient {
             try {
                 input.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
+                catchMessage("Closing server input stream", true);
             }
         }
 
@@ -255,7 +274,8 @@ public class SimpleServer extends SimpleClient {
             try {
                 serverSocket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
+                catchMessage("Closing server socket", true);
             }
         }
 
