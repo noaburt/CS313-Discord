@@ -1,17 +1,30 @@
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.concurrent.ExecutionException;
+
+/*
+ * SimpleClient
+ * Implementation of JPanel class for acting as a client
+ *
+ * This class is instantiated and passed into SimpleGui with the JPanel content.
+ * SimpleServer is an extension of this class as well, using most of the same methods.
+ *
+ * Actions of this Class:
+ *
+ * Creating gui JPanel - addTextBoxes(), makePanel()
+ * Connecting to server - connect()
+ * Sending messages - addMessage(), sendMessage()
+ * Disconnecting server - shutdown()
+ *
+ */
 
 public class SimpleClient extends JPanel {
     /* Class for all clients to be used */
@@ -94,6 +107,12 @@ public class SimpleClient extends JPanel {
         return panel;
     }
 
+    public void catchMessage(String message, boolean error) {
+        /* Nice way of clarifying errors from try-catch blocks */
+
+        System.out.println((error ? "Error: " : "Caught: ") + message);
+    }
+
     public void addMessage(String message) {
         /* Method for appending a message to the display, not for sending */
 
@@ -104,14 +123,16 @@ public class SimpleClient extends JPanel {
         /* Method for sending a message to the server, including name and displaying on gui */
 
         /* No blank messages */
-        if (message.trim().equals("")) { return; }
+        if (message.trim().isEmpty()) { return; }
 
         try {
             String sendMsg = clientName + ": " + message;
             output.writeUTF(sendMsg);
         } catch (IOException e) {
             addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
-            e.printStackTrace();
+
+            //e.printStackTrace();
+            catchMessage("Sending message from client [" + e.getMessage() + "] to server [" + serverPort + "]", true);
         }
     }
 
@@ -121,21 +142,26 @@ public class SimpleClient extends JPanel {
         addMessage("Connecting to server...");
 
         try {
+            /* Create socket to server, and output / input data streams */
             clientSocket = new Socket("localhost", serverPort);
             output = new DataOutputStream(clientSocket.getOutputStream());
             input = new DataInputStream(clientSocket.getInputStream());
 
+            /* First message is always client data -------------------------------------MIGHT NOT NEED KEEP FOR NOW */
             output.writeUTF("{;" + clientName + ";}");
 
             sendMessage("has joined the server\n");
+
         } catch (IOException e) {
-            addMessage("No server found: localhost@" + serverPort + "\n");
+            addMessage("No server found @ localhost:" + serverPort + "\n");
             shutdown();
+
+            catchMessage("Didn't find server", false);
             return;
         }
 
         try {
-            /* If connects successfully, allow sending messages */
+            /* If connects successfully, allow sending messages, activate buttons */
             messageField.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     sendMessage(messageField.getText());
@@ -146,6 +172,7 @@ public class SimpleClient extends JPanel {
             enableButtons();
             addMessage("Successfully connected to server\n");
 
+            /* While loops continue until exception is thrown */
             while (true) {
                 /* Constantly read for messages and show */
                 String inputLine = input.readUTF();
@@ -156,20 +183,25 @@ public class SimpleClient extends JPanel {
             /* Client has left server or server has closed */
             addMessage("Leaving server, goodbye...\n");
             shutdown();
+
+            catchMessage("Client left server", false);
         }
     }
 
     public void shutdown() {
-        /* Method for completing all steps for shutting down client */
+        /* Method for completing all steps for disconnecting client */
 
         try {
             clientSocket.close();
         } catch (IOException e) {
             addMessage("Error: Failed to leave server\n(" + e.getMessage() + ")");
-            e.printStackTrace();
+
+            //e.printStackTrace();
+            catchMessage("Failed to close client socket [" + e.getMessage() + "]", true);
         }
 
-        checkShutdown();
+        //checkShutdown();
+        disableButtons();
     }
 
     public void checkShutdown() {

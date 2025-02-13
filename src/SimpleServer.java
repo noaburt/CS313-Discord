@@ -11,10 +11,35 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
+/*
+ * SimpleServer
+ * Implementation of JPanel class, extension of SimpleClient, for acting as a server
+ *
+ * Messaging works as follows:
+ *
+ *           Client send message -> Server
+ *           Server sends received message -> All connected clients
+ *
+ * This class is instantiated and passed into SimpleGui with the JPanel content.
+ * SimpleServer utilises most of SimpleClient, with some methods overridden.
+ * The ClientHandler class contained within is used for continuously checking for client messages.
+ * Array list clients contains all ClientHandlers being used by server
+ *
+ * NOTE - OLD HANDLERS ARE NEVER REMOVED, NEED TO FIX THIS AT SOME POINT
+ *
+ * Actions of this Class:
+ *
+ * Creating gui JPanel - addTextBoxes(), makePanel()
+ * Starting the server, listen for clients - connect()
+ * Recieving / listening for messages - connect(), clients, ClientHandler
+ * Sending messages - addMessage(), sendMessage(), resendMessage()
+ * Stopping server - shutdown()
+ *
+ */
+
 public class SimpleServer extends SimpleClient {
 
     public ServerSocket serverSocket;
-
     public ArrayList<ClientHandler> clients;
 
     public SimpleServer(int port) {
@@ -39,12 +64,6 @@ public class SimpleServer extends SimpleClient {
         });
 
         add(scrollPane);
-    }
-
-    public void catchMessage(String message, boolean error) {
-        /* Nice way of clarifying errors from try-catch blocks */
-
-        System.out.println((error ? "Error: " : "Caught: ") + message);
     }
 
     @Override
@@ -82,7 +101,7 @@ public class SimpleServer extends SimpleClient {
         /* Method to attempt to start server */
 
         try {
-            checkStartServer();
+            //checkStartServer();
             addMessage("Creating server at port " + serverPort);
 
             serverSocket = new ServerSocket(serverPort);
@@ -106,11 +125,11 @@ public class SimpleServer extends SimpleClient {
 
     }
 
-    private class ClientHandler extends Thread {
-        private Socket clientSocket;
+    /* Thread class for handling new clients connecting to server, runs thread to continuously check messages */
+    public class ClientHandler extends Thread {
+        private final Socket clientSocket;
         private DataInputStream thisInput;
         private DataOutputStream thisOutput;
-        private String clientName;
 
         public boolean closed;
 
@@ -124,9 +143,9 @@ public class SimpleServer extends SimpleClient {
             try {
                 thisInput = new DataInputStream(this.clientSocket.getInputStream());
 
-                /* Client data in form {;name;} */
+                /* Client data in form {;name;} -------------------------------------------- MIGHT NOT NEED KEEP FOR NOW */
                 String readClientData = thisInput.readUTF();
-                this.clientName = readClientData.split(";")[1];
+                String clientName = readClientData.split(";")[1];
 
                 thisOutput = new DataOutputStream(clientSocket.getOutputStream());
             } catch (IOException e) {
@@ -138,6 +157,7 @@ public class SimpleServer extends SimpleClient {
 
             String inputLine;
 
+            /* Check for messages from client until shutdown */
             try {
                 while (true) {
                     /* Read input and resend */
@@ -160,6 +180,8 @@ public class SimpleServer extends SimpleClient {
         }
 
         public void shutdownClient() {
+            /* Shutdown this specific client handler, since client has left server */
+
             if (thisInput != null) {
                 try {
                     thisInput.close();
@@ -280,6 +302,6 @@ public class SimpleServer extends SimpleClient {
         }
 
         addMessage("Server stopped\n");
-        checkShutdown();
+        //checkShutdown();
     }
 }
