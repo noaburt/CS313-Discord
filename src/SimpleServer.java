@@ -113,6 +113,8 @@ public class SimpleServer extends SimpleClient {
             catchMessage("Connecting to server [" + e.getMessage() + "]", true);
         }
 
+        enableButtons();
+
         try {
             while (true) {
                 clients.add(new ClientHandler(serverSocket.accept()));
@@ -302,6 +304,8 @@ public class SimpleServer extends SimpleClient {
         }
 
         addMessage("Server stopped\n");
+
         //checkShutdown();
+        disableButtons();
     }
 }
