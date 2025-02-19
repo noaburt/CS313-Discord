@@ -122,7 +122,7 @@ public class SimpleServer extends SimpleClient {
             }
         } catch (IOException e) {
             //e.printStackTrace();
-            catchMessage("Client socket accept", true);
+            catchMessage("Client socket accept loop", false);
         }
 
     }
@@ -144,11 +144,6 @@ public class SimpleServer extends SimpleClient {
             /* First message is always name etc */
             try {
                 thisInput = new DataInputStream(this.clientSocket.getInputStream());
-
-                /* Client data in form {;name;} -------------------------------------------- MIGHT NOT NEED KEEP FOR NOW */
-                String readClientData = thisInput.readUTF();
-                String clientName = readClientData.split(";")[1];
-
                 thisOutput = new DataOutputStream(clientSocket.getOutputStream());
             } catch (IOException e) {
                 //e.printStackTrace();
@@ -168,7 +163,7 @@ public class SimpleServer extends SimpleClient {
                     /* Resend message to all clients */
                     resendMessage(inputLine);
 
-                    if (inputLine.split(":")[1].equals(" has left the server\n")) {
+                    if (inputLine.split("}")[1].equals("has left the server\n")) {
                         //System.out.println(clientName + " has left, client handler shutdown");
                         this.shutdownClient();
                     }
@@ -178,6 +173,22 @@ public class SimpleServer extends SimpleClient {
                 catchMessage("Connection closed", false);
 
                 shutdownClient();
+            }
+        }
+
+        public void sendToClient(String message) {
+            /* Format the message and send to this client */
+
+            String[] data = message.split(";"); /* Format -->   { ; NAME ; CHAT_CODE ; } MESSAGE */
+            String toSend = "[" + data[2] + "] " + data[1] + ": " + message.split("}")[1];
+
+            try {
+                thisOutput.writeUTF(toSend);
+            } catch (IOException e) {
+                addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
+
+                //e.printStackTrace();
+                catchMessage("Sending message from server [" + e.getMessage() + "]", true);
             }
         }
 
@@ -263,20 +274,13 @@ public class SimpleServer extends SimpleClient {
     public void resendMessage(String message) {
         /* Method for sending a message to all clients */
 
-        try {
-            for (ClientHandler client : clients) {
-                if (!client.closed) {
-                    client.thisOutput.writeUTF(message);
-                }
+        for (ClientHandler client : clients) {
+            if (!client.closed) {
+                client.sendToClient(message);
             }
-
-            messageArea.append(message + "\n");
-        } catch (IOException e) {
-            addMessage("Error: Failed to resend message '" + message + "'\n(" + e.getMessage() + ")");
-
-            //e.printStackTrace();
-            catchMessage("Resending message to clients [" + e.getMessage() + "]", true);
         }
+
+        messageArea.append("[" + message.split(";")[2] + "] " + message.split(";")[1] + ": " + message.split("}")[1] + "\n");
     }
 
     @Override

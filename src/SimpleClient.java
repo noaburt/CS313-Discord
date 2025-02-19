@@ -30,7 +30,9 @@ public class SimpleClient extends JPanel {
     /* Class for all clients to be used */
 
     public int serverPort;
+
     public String clientName;
+    public String currentChatCode;
 
     public Socket clientSocket;
 
@@ -47,6 +49,7 @@ public class SimpleClient extends JPanel {
 
         serverPort = port;
         clientName = thisName;
+        currentChatCode = "mainchat";
 
         setLayout(new BorderLayout());
         addTextBoxes();
@@ -126,8 +129,8 @@ public class SimpleClient extends JPanel {
         if (message.trim().isEmpty()) { return; }
 
         try {
-            String sendMsg = clientName + ": " + message;
-            output.writeUTF(sendMsg);
+            String msgData = "{;" + clientName + ";" + currentChatCode + ";}";
+            output.writeUTF(msgData + message);
         } catch (IOException e) {
             addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
 
@@ -147,10 +150,7 @@ public class SimpleClient extends JPanel {
             output = new DataOutputStream(clientSocket.getOutputStream());
             input = new DataInputStream(clientSocket.getInputStream());
 
-            /* First message is always client data -------------------------------------MIGHT NOT NEED KEEP FOR NOW */
-            output.writeUTF("{;" + clientName + ";}");
-
-            sendMessage("has joined the server\n");
+            sendMessage("has joined the server");
 
         } catch (IOException e) {
             addMessage("No server found @ localhost:" + serverPort + "\n");
