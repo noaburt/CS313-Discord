@@ -29,21 +29,65 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
 
         /* create title, labels, fields, and buttons, and add to component list */
         componentList.put("Title", commonconstants.makeTitle("DISCORD", 0));
-
+        // welcome message
         componentList.put("welcomeMassage", commonconstants.makeSubheading("Welcome " + client.clientName, 0, formColumns[0], getRowPosition(0), SwingConstants.LEFT));
-
-
-        componentList.put("loginButton", commonconstants.makeButton("Connect To Chat Server", 0, formColumns[0], commonconstants.WIN_SIZE[1] - 80 - commonconstants.BUTTON_SIZE[1]));
-
-
-
-
-
-        componentList.get("loginButton").addMouseListener(
+        // join global chat
+        componentList.put("globalServer", commonconstants.makeButton("Connect To Global Chat Server", 0, formColumns[0], commonconstants.WIN_SIZE[1] - 260 - commonconstants.BUTTON_SIZE[1]));
+        // create chat room
+        componentList.put("createServer", commonconstants.makeButton("Create Chat Server", 0, formColumns[0], commonconstants.WIN_SIZE[1] - 200 - commonconstants.BUTTON_SIZE[1]));
+        // join specific chat room
+        componentList.put("selectServer", commonconstants.makeButton("Join Chat Server", 0, formColumns[0], commonconstants.WIN_SIZE[1] - 140 - commonconstants.BUTTON_SIZE[1]));
+        // disconnect
+        componentList.put("disconnect", commonconstants.makeButton("Disconnect", 0, formColumns[0], commonconstants.WIN_SIZE[1] - 80 - commonconstants.BUTTON_SIZE[1]));
+        // listeners for buttons
+        componentList.get("globalServer").addMouseListener(
                 new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
+                        /*
 
+                            joins global chat server
+
+                         */
+                    }
+                }
+        );
+
+        componentList.get("createServer").addMouseListener(
+                new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        /*
+
+                            creates a new chat with unique code check for a unique code then show chat page
+
+                         */
+                    }
+                }
+        );
+        componentList.get("selectServer").addMouseListener(
+                new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        /*
+
+                            ask for room code check if it is room then open the chat page if not error
+
+                         */
+                    }
+                }
+        );
+        componentList.get("disconnect").addMouseListener(
+                new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        /*
+
+                                DISCONNECT THEN SHOW LOGIN PAGE
+
+                         */
+                        new NotSoSimpleClientLoginPage(client,0).setVisible(true);
+                        NotEvenCloseToSimpleSelectionPage.this.dispose();
                     }
                 }
         );

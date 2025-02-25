@@ -195,7 +195,7 @@ public class commonconstants {
     public static JButton makeButton(String text, int guiTheme, int x, int y) {
         JButton newButton = new JButton(text);
 
-        newButton.setBounds(x, y, BUTTON_SIZE[0], BUTTON_SIZE[1]);
+        newButton.setBounds(x, y, BUTTON_SIZE[0] + 150, BUTTON_SIZE[1]);
         newButton.setBackground( TFIELD_COLOR[guiTheme] );
         newButton.setForeground( TEXT_COLOR[guiTheme] );
         newButton.setFont( BUTTON_FONT );

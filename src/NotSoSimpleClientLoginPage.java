@@ -45,6 +45,11 @@ public class NotSoSimpleClientLoginPage extends form{
                 new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
+                        /*
+
+                                DO CONNECTION STUFF HERE THEN IF CONNECT SHOW 'HOME' PAGE
+
+                         */
                         new NotEvenCloseToSimpleSelectionPage(client, 0).setVisible(true);
                         NotSoSimpleClientLoginPage.this.dispose();
                     }
