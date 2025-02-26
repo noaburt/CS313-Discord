@@ -55,19 +55,11 @@ public class NotSoSimpleServer extends SimpleClient {
         /* Method to attempt to start server */
 
         try {
-            //checkStartServer();
-            addMessage("Creating server at port " + serverPort);
-
             serverSocket = new ServerSocket(serverPort);
-
-            addMessage("Server active...\n");
-
         } catch (IOException e) {
-            //e.printStackTrace();
-            catchMessage("Connecting to server [" + e.getMessage() + "]", true);
+
         }
 
-        enableButtons();
 
         try {
             while (true) {
@@ -75,7 +67,6 @@ public class NotSoSimpleServer extends SimpleClient {
                 clients.getLast().start();
             }
         } catch (IOException e) {
-            //e.printStackTrace();
             catchMessage("Client socket accept", true);
         }
 
@@ -122,10 +113,6 @@ public class NotSoSimpleServer extends SimpleClient {
                     /* Resend message to all clients */
                     resendMessage(inputLine);
 
-                    if (inputLine.split(":")[1].equals(" has left the server\n")) {
-                        //System.out.println(clientName + " has left, client handler shutdown");
-                        this.shutdownClient();
-                    }
                 }
             } catch (IOException e) {
                 //e.printStackTrace();
@@ -174,22 +161,6 @@ public class NotSoSimpleServer extends SimpleClient {
         }
 
         enableButtons();
-    }
-
-    @Override
-    public void disableButtons() {
-        /* Method to enable / disable buttons when connection ended */
-
-        connectButton.setEnabled(true);
-        shutdownButton.setEnabled(false);
-    }
-
-    @Override
-    public void enableButtons() {
-        /* Method to enable / disable buttons when connection started */
-
-        connectButton.setEnabled(false);
-        shutdownButton.setEnabled(true);
     }
 
     @Override
@@ -259,7 +230,5 @@ public class NotSoSimpleServer extends SimpleClient {
 
         addMessage("Server stopped\n");
 
-        //checkShutdown();
-        disableButtons();
     }
 }
