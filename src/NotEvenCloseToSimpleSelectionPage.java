@@ -15,7 +15,7 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
     public NotEvenCloseToSimpleSelectionPage(NotSoSimpleClient client, int err) {
 
         /* set title bar */
-        super("Login", client, 2);
+        super("Home", client, 2);
 
 
         this.addGuiDesign();
@@ -32,13 +32,13 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
         // welcome message
         componentList.put("welcomeMassage", commonconstants.makeSubheading("Welcome " + client.clientName, 0, formColumns[0], getRowPosition(0), SwingConstants.LEFT));
         // join global chat
-        componentList.put("globalServer", commonconstants.makeButton("Connect To Global Chat Server", 0, formColumns[0], commonconstants.WIN_SIZE[1] - 260 - commonconstants.BUTTON_SIZE[1]));
+        componentList.put("globalServer", commonconstants.makeButton("Connect To Global Chat Server", 0, formColumns[0], commonconstants.WIN_SIZE[1] - 260 - commonconstants.BUTTON_SIZE[1],150));
         // create chat room
-        componentList.put("createServer", commonconstants.makeButton("Create Chat Server", 0, formColumns[0], commonconstants.WIN_SIZE[1] - 200 - commonconstants.BUTTON_SIZE[1]));
+        componentList.put("createServer", commonconstants.makeButton("Create Chat Server", 0, formColumns[0], commonconstants.WIN_SIZE[1] - 200 - commonconstants.BUTTON_SIZE[1],150));
         // join specific chat room
-        componentList.put("selectServer", commonconstants.makeButton("Join Chat Server", 0, formColumns[0], commonconstants.WIN_SIZE[1] - 140 - commonconstants.BUTTON_SIZE[1]));
+        componentList.put("selectServer", commonconstants.makeButton("Join Chat Server", 0, formColumns[0], commonconstants.WIN_SIZE[1] - 140 - commonconstants.BUTTON_SIZE[1],150));
         // disconnect
-        componentList.put("disconnect", commonconstants.makeButton("Disconnect", 0, formColumns[0], commonconstants.WIN_SIZE[1] - 80 - commonconstants.BUTTON_SIZE[1]));
+        componentList.put("disconnect", commonconstants.makeButton("Disconnect", 0, formColumns[0], commonconstants.WIN_SIZE[1] - 80 - commonconstants.BUTTON_SIZE[1],150));
         // listeners for buttons
         componentList.get("globalServer").addMouseListener(
                 new MouseAdapter() {
@@ -49,6 +49,9 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
                             joins global chat server
 
                          */
+                        String code = "GLOBAL";
+                        new simpleChatRoom(client,0 , code).setVisible(true);
+                        NotEvenCloseToSimpleSelectionPage.this.dispose();
                     }
                 }
         );

@@ -16,7 +16,7 @@ public class NotSoSimpleClientLoginPage extends form{
     public NotSoSimpleClientLoginPage(NotSoSimpleClient client, int err) {
 
         /* set title bar */
-        super("Login", client, 2);
+        super("Connect", client, 2);
 
 
         this.addGuiDesign();
@@ -35,7 +35,7 @@ public class NotSoSimpleClientLoginPage extends form{
 
         textComponentList.put("uNameField", commonconstants.makeTextField(0, formColumns[0], getRowPosition(0) + commonconstants.FIELD_DIST));
 
-        componentList.put("loginButton", commonconstants.makeButton("Connect To Chat Server", 0, formColumns[0], commonconstants.WIN_SIZE[1] - 80 - commonconstants.BUTTON_SIZE[1]));
+        componentList.put("loginButton", commonconstants.makeButton("Connect To Chat Server", 0, formColumns[0], commonconstants.WIN_SIZE[1] - 80 - commonconstants.BUTTON_SIZE[1],150));
 
 
 
@@ -59,11 +59,6 @@ public class NotSoSimpleClientLoginPage extends form{
         /* add components to form */
         addComponents();
     }
-
-    /* validate login details, login or display error
-     *
-     * @return int: error code (from commonconstants)
-     */
 
 
 

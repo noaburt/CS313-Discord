@@ -26,7 +26,7 @@ import java.net.Socket;
  *
  */
 
-public class NotSoSimpleClient extends JPanel {
+public class NotSoSimpleClient{
     /* Class for all clients to be used */
 
     public int serverPort;
@@ -48,63 +48,6 @@ public class NotSoSimpleClient extends JPanel {
         serverPort = port;
         clientName = thisName;
 
-        setLayout(new BorderLayout());
-        addTextBoxes();
-
-        JPanel actionsPanel = makePanel();
-        add(actionsPanel, BorderLayout.SOUTH);
-
-        disableButtons();
-    }
-
-    public void addTextBoxes() {
-        /* Method for adding only required text boxes to window */
-
-        messageArea = new JTextArea(10, 20);
-        messageArea.setEditable(false);
-
-        messageField = new JTextField(10);
-        messageField.setEditable(false);
-
-        /* Keep scroll always showing the newest messages */
-        JScrollPane scrollPane = new JScrollPane(messageArea);
-        scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
-            }
-        });
-
-        add(scrollPane);
-        add(messageField, BorderLayout.NORTH);
-    }
-
-    public JPanel makePanel() {
-        /* Method for adding only required buttons to window */
-
-        JPanel panel = new JPanel();
-
-        shutdownButton = new JButton("Leave Server");
-        shutdownButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                sendMessage("has left the server\n");
-                shutdown();
-            }
-        });
-
-        connectButton = new JButton("Connect to server");
-        connectButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                new Thread(new Runnable() {
-                    public void run() {
-                        connect();
-                    }
-                }).start();
-            }
-        });
-
-        panel.add(shutdownButton);
-        panel.add(connectButton);
-        return panel;
     }
 
     public void catchMessage(String message, boolean error) {

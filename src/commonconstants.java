@@ -110,19 +110,6 @@ public class commonconstants {
         return newTitle;
     }
 
-    /*
-     * alternate makeTitle for different window size
-     */
-    public static JLabel makeTitle(String title, int guiTheme, int newWinx) {
-        JLabel newTitle = new JLabel(title);
-
-        newTitle.setBounds(0, 10, newWinx, 70);
-        newTitle.setForeground( TEXT_COLOR[guiTheme] );
-        newTitle.setFont( HEADER_FONT );
-        newTitle.setHorizontalAlignment(SwingConstants.CENTER);
-
-        return newTitle;
-    }
 
     /* function for creating a default subheading label
      *
@@ -192,10 +179,10 @@ public class commonconstants {
      * @param int: y location to show button
      * @return JButton: created and formatted button
      */
-    public static JButton makeButton(String text, int guiTheme, int x, int y) {
+    public static JButton makeButton(String text, int guiTheme, int x, int y,int sizeAjust) {
         JButton newButton = new JButton(text);
 
-        newButton.setBounds(x, y, BUTTON_SIZE[0] + 150, BUTTON_SIZE[1]);
+        newButton.setBounds(x, y, BUTTON_SIZE[0] + sizeAjust, BUTTON_SIZE[1]);
         newButton.setBackground( TFIELD_COLOR[guiTheme] );
         newButton.setForeground( TEXT_COLOR[guiTheme] );
         newButton.setFont( BUTTON_FONT );
@@ -209,19 +196,7 @@ public class commonconstants {
     /*
      * alternate makeButton for changing width
      */
-    public static JButton makeButton(String text, int guiTheme, int x, int y, int width) {
-        JButton newButton = new JButton(text);
 
-        newButton.setBounds(x, y, width, BUTTON_SIZE[1]);
-        newButton.setBackground( TFIELD_COLOR[guiTheme] );
-        newButton.setForeground( TEXT_COLOR[guiTheme] );
-        newButton.setFont( SUBHEAD_FONT );
-        newButton.setCursor( Cursor.getPredefinedCursor(Cursor.HAND_CURSOR) );
-
-        newButton.setBorder(BorderFactory.createLineBorder( TFIELD_BORDER[guiTheme], BORDER_THICC, true ));
-
-        return newButton;
-    }
 
     /* function for creating a default dark / light mode button
      *  Note: add item listener externally
