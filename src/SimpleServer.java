@@ -163,7 +163,11 @@ public class SimpleServer extends SimpleClient {
                     /* Resend message to all clients */
                     resendMessage(inputLine);
 
-                    if (inputLine.split("}")[1].equals("has left the server\n")) {
+                    String sentMsg = "";
+                    String[] sentData = new String[3]; // ClientName, ChatCode, UserRequest
+                    unpackageData(inputLine, sentMsg, sentData);
+
+                    if (sentMsg.equals("has left the server")) {
                         //System.out.println(clientName + " has left, client handler shutdown");
                         this.shutdownClient();
                     }
