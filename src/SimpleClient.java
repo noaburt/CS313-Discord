@@ -9,6 +9,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
  * SimpleClient
@@ -44,10 +48,16 @@ public class SimpleClient extends JPanel {
     public JButton shutdownButton;
     public JButton connectButton;
 
-    private String separator;
-    private String openCode;
-    private String closeCode;
-    private int codesLen;
+    private final String separator;
+    private final String openCode;
+    private final String closeCode;
+    private final int codesLen;
+
+    private enum reqCodes {
+        NONE,    // SENDING MESSAGE etc.
+        LEAVE,   // LEAVING SERVER
+        NEW_CHAT // CREATING GROUP CHAT
+    };
 
     public SimpleClient(int port, String thisName) {
         /* Setup window when client instance is created */
@@ -136,25 +146,24 @@ public class SimpleClient extends JPanel {
         messageArea.append(message + "\n");
     }
 
-    public String packageData(String msg, String name, String chatCode, String request) {
+    public String packageData(String msg, Map<String, String> data) {
         /* Method for packaging message data with message */
 
         /* FORMAT => [OPENCODE]name='NAME'[SEPARATOR]chat='CODE'[SEPARATOR]req='INT'[CLOSECODE] [OPENCODE]MESSAGE[CLOSECODE] */
+        /* data => [name, code, req] */
 
-        return openCode + "name='" + name + "'" + separator + "chat='" + chatCode + "'" + separator + "req='" + request + "'" + closeCode + openCode + msg + closeCode;
+        return openCode + "name='" + data.get("name") + "'" + separator + "chat='" + data.get("code") + "'" + separator + "req='" + data.get("req") + "'" + closeCode + openCode + msg + closeCode;
     }
 
-    public void unpackageData(String fullMsg, String msgOut, String[] dataOut) {
-        /* Funny method to 'return' multiple variables by setting values of params */
+    public String unpackageData(String fullMsg, Map<String, String> dataOut) {
+        /* Method to unpack data from received message, returns message only */
 
         /* FORMAT => [OPENCODE]name='NAME'[SEPARATOR]chat='CODE'[SEPARATOR]req='INT'[CLOSECODE] [OPENCODE]MESSAGE[CLOSECODE] */
-
-        String curlyRegex = "\\s(?=\\{)|(?<=})\\s"; // NOT NEEDED FOR NOW
 
         int dataStart = -1, dataEnd = -1;
         int msgStart = -1, msgEnd = -1;
 
-        for (int i = 0; i < fullMsg.length() - codesLen - 1; i++) {
+        for (int i = 0; i < fullMsg.length() - (codesLen-1); i++) {
             /* Go through with sliding window to find data, message */
             String slidingWindow = fullMsg.substring(i, i + codesLen);
 
@@ -162,13 +171,13 @@ public class SimpleClient extends JPanel {
                 if (slidingWindow.equals(openCode)) {
                     /* Start not found, current char is openCode */
 
-                    dataStart = i + codesLen;
+                    dataStart = i+codesLen;
                 }
             } else if (dataEnd == -1) {
                 if (slidingWindow.equals(closeCode)) {
                     /* End not found, current char is closeCode */
 
-                    dataEnd = i-1;
+                    dataEnd = i+codesLen;
                 }
             } else if (msgStart == -1) {
                 if (slidingWindow.equals(openCode)) {
@@ -180,43 +189,66 @@ public class SimpleClient extends JPanel {
                 if (slidingWindow.equals(closeCode)) {
                     /* End not found, current char is closeCode */
 
-                    msgEnd = i - 1;
+                    msgEnd = i;
                 }
             }
         }
 
         /* Sort data into array */
         String allData = fullMsg.substring(dataStart, dataEnd);
-        String name = "NONE", chat = "NONE", req = "NONE";
+        System.out.println("DATA IS: " + allData);
+        String name = "NONE", chat = "NONE";
+        reqCodes req = reqCodes.NONE;
 
         /* Reusing data start */
         dataStart = 0;
 
-        for (int i = 0; i < allData.length() - codesLen - 1; i++) {
+        for (int i = 0; i < allData.length() - (codesLen-1); i++) {
             /* Go through with sliding window to parse data */
-            String slidingWindow = fullMsg.substring(i, i + codesLen);
+            String slidingWindow = allData.substring(i, i + codesLen);
 
-            if (slidingWindow.equals(separator)) {
+            //System.out.println("SLIDING WINDOW (i = " + Integer.toString(i) + " of " + Integer.toString(allData.length() - (codesLen-2)) + "): " + slidingWindow);
+
+            if (slidingWindow.equals(separator) || slidingWindow.equals(closeCode)) {
                 /* Found separator, save data so far */
 
-                String foundData = allData.substring(dataStart, i-1);
+                String foundData = allData.substring(dataStart, i);
+
+                /* Skip separator and begin next data */
+                i += codesLen;
+                dataStart = i;
 
                 switch(foundData.split("=")[0]) {
                     case "name":
-                        name = foundData.substring(foundData.indexOf('='));
+                        name = foundData.substring(foundData.indexOf('=')+1);
+                        break;
 
                     case "chat":
-                        chat = foundData.substring(foundData.indexOf('='));
+                        chat = foundData.substring(foundData.indexOf('=')+1);
+                        break;
 
                     case "req":
-                        req = foundData.substring(foundData.indexOf('='));
+                        String foundReq = foundData.substring(foundData.indexOf('=')+1);
+
+                        try {
+                            req = reqCodes.valueOf(foundReq);
+                        } catch (IllegalArgumentException e) {
+                            req = reqCodes.NONE;
+                            catchMessage("Req not found, got: " + foundReq, false);
+                        }
+                        break;
+
+                    default:
+                        System.out.println("Strange data detected, skipping");
                 }
             }
         }
 
-        msgOut = fullMsg.substring(msgStart, msgEnd);
-        dataOut = new String[]{name, chat, req};
+        dataOut.put("name", name);
+        dataOut.put("chat", chat);
+        dataOut.put("req", req.name());
 
+        return fullMsg.substring(msgStart, msgEnd);
     }
 
     public void sendMessage(String message) {
@@ -226,7 +258,12 @@ public class SimpleClient extends JPanel {
         if (message.trim().isEmpty()) { return; }
 
         try {
-            String sendMsg = packageData(message, clientName, currentChatCode);
+            Map<String, String> data = new HashMap<String, String>();
+            data.put("name", clientName);
+            data.put("code", currentChatCode);
+            data.put("req", reqCodes.NONE.name());
+
+            String sendMsg = packageData(message, data);
             System.out.println("ENCODED: " + sendMsg);
             output.writeUTF(sendMsg);
         } catch (IOException e) {

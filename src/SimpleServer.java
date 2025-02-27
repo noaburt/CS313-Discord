@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
  * SimpleServer
@@ -163,11 +166,13 @@ public class SimpleServer extends SimpleClient {
                     /* Resend message to all clients */
                     resendMessage(inputLine);
 
-                    String sentMsg = "";
-                    String[] sentData = new String[3]; // ClientName, ChatCode, UserRequest
-                    unpackageData(inputLine, sentMsg, sentData);
+                    Map<String, String> receivedData = new HashMap<String, String>(); // ClientName, ChatCode, UserRequest
+                    String receivedMsg = unpackageData(inputLine, receivedData);
 
-                    if (sentMsg.equals("has left the server")) {
+                    System.out.println("DATA: " + receivedData);
+                    System.out.println("RECEIVED: " + receivedMsg);
+
+                    if (receivedMsg.equals("has left the server")) {
                         //System.out.println(clientName + " has left, client handler shutdown");
                         this.shutdownClient();
                     }
