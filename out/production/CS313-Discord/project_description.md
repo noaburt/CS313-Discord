@@ -5,7 +5,7 @@
 
 ## Overview
 
-* This exercise will be undertaken in group of 6, and is split into four stages, totalling 50% of your grade for CS313:
+* This exercise will be undertaken in groups of 6, and is split into four stages, totalling 50% of your grade for CS313:
     * Stage 1, ~weeks 3-4
     * Stage 2, ~weeks 4-5
     * Stage 3, ~weeks 6-10
@@ -15,7 +15,7 @@
 
 ## Teams and Mentorship
 
-* You may choose your own teams within your assigned lab group.
+* You may choose your own teams within your assigned lab groups.
 * Each team will be assigned a lab demonstrator as their mentor.
 * Each team must meet their mentor once per week in their assigned timeslot.
 * The following may lead to teams being restructured by the lecturing team:
