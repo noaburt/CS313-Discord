@@ -1,8 +1,7 @@
+package NotSoSimple;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 public class commonconstants {
 
@@ -202,7 +201,7 @@ public class commonconstants {
      *  Note: add item listener externally
      *
      * @param int: forms current guiTheme state
-     * @param swapInterface: interface implementation containing swap function for current form
+     * @param swapInterface: interface implementation containing swap function for current NotSoSimple.form
      * @return JToggleButton: created and formatted button
      */
 

@@ -1,14 +1,15 @@
+package NotSoSimple;
+
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
 
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowStateListener;
 import java.util.Map;
 import java.util.HashMap;
 
-/* general class for each gui form */
+/* general class for each gui NotSoSimple.form */
 public abstract class form extends JFrame {
 
     /* global theme and component list for gui */
@@ -52,7 +53,7 @@ public abstract class form extends JFrame {
 
     public abstract void addGuiDesign();
 
-    /* add all components from componentList to the form
+    /* add all components from componentList to the NotSoSimple.form
      *
      * @return void
      */
@@ -84,7 +85,7 @@ public abstract class form extends JFrame {
      * swap interface implementation
      */
 
-    /* reset username and completely log out of any current form
+    /* reset username and completely log out of any current NotSoSimple.form
      *
      * @return void
      */

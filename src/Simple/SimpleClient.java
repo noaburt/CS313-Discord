@@ -1,3 +1,4 @@
+package Simple;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,17 +10,15 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 /*
- * SimpleClient
+ * Simple.SimpleClient
  * Implementation of JPanel class for acting as a client
  *
- * This class is instantiated and passed into SimpleGui with the JPanel content.
- * SimpleServer is an extension of this class as well, using most of the same methods.
+ * This class is instantiated and passed into Simple.SimpleGui with the JPanel content.
+ * Simple.SimpleServer is an extension of this class as well, using most of the same methods.
  *
  * Actions of this Class:
  *

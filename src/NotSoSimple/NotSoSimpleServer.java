@@ -1,9 +1,7 @@
-import javax.swing.*;
+package NotSoSimple;
+import Simple.*;
+
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -12,16 +10,16 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 /*
- * SimpleServer
- * Implementation of JPanel class, extension of SimpleClient, for acting as a server
+ * Simple.SimpleServer
+ * Implementation of JPanel class, extension of Simple.SimpleClient, for acting as a server
  *
  * Messaging works as follows:
  *
  *           Client send message -> Server
  *           Server sends received message -> All connected clients
  *
- * This class is instantiated and passed into SimpleGui with the JPanel content.
- * SimpleServer utilises most of SimpleClient, with some methods overridden.
+ * This class is instantiated and passed into Simple.SimpleGui with the JPanel content.
+ * Simple.SimpleServer utilises most of Simple.SimpleClient, with some methods overridden.
  * The ClientHandler class contained within is used for continuously checking for client messages.
  * Array list clients contains all ClientHandlers being used by server
  *
@@ -90,7 +88,7 @@ public class NotSoSimpleServer extends SimpleClient {
             try {
                 thisInput = new DataInputStream(this.clientSocket.getInputStream());
 
-                /* Client data in form {;name;} -------------------------------------------- MIGHT NOT NEED KEEP FOR NOW */
+                /* Client data in NotSoSimple.form {;name;} -------------------------------------------- MIGHT NOT NEED KEEP FOR NOW */
                 String readClientData = thisInput.readUTF();
                 String clientName = readClientData.split(";")[1];
 

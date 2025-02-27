@@ -1,21 +1,20 @@
+package NotSoSimple;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
 /*
- * SimpleClient
+ * Simple.SimpleClient
  * Implementation of JPanel class for acting as a client
  *
- * This class is instantiated and passed into SimpleGui with the JPanel content.
- * SimpleServer is an extension of this class as well, using most of the same methods.
+ * This class is instantiated and passed into Simple.SimpleGui with the JPanel content.
+ * Simple.SimpleServer is an extension of this class as well, using most of the same methods.
  *
  * Actions of this Class:
  *

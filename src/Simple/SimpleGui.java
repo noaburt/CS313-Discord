@@ -1,9 +1,10 @@
+package Simple;
 
 import javax.swing.*;
 import java.awt.*;
 
 /*
- * SimpleGui
+ * Simple.SimpleGui
  * General gui class for all servers and clients
  *
  * When instantiated, the JPanel class parameter is added to the JFrame, and the gui is started.

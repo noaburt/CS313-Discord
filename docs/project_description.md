@@ -5,7 +5,7 @@
 
 ## Overview
 
-* This exercise will be undertaken in group of 6, and is split into four stages, totalling 50% of your grade for CS313:
+* This exercise will be undertaken in NotSoSimple.group of 6, and is split into four stages, totalling 50% of your grade for CS313:
     * Stage 1, ~weeks 3-4
     * Stage 2, ~weeks 4-5
     * Stage 3, ~weeks 6-10
@@ -15,7 +15,7 @@
 
 ## Teams and Mentorship
 
-* You may choose your own teams within your assigned lab group.
+* You may choose your own teams within your assigned lab NotSoSimple.group.
 * Each team will be assigned a lab demonstrator as their mentor.
 * Each team must meet their mentor once per week in their assigned timeslot.
 * The following may lead to teams being restructured by the lecturing team:
@@ -56,11 +56,11 @@ Repeat the following process four times:
 * Explain (1) and demonstrate how you have made this feature thread safe. (1)
 
 Examples of interesting features and testing strategies could include:
-* Multi-user group conversations which cannot get out of sync
+* Multi-user NotSoSimple.group conversations which cannot get out of sync
 * Server-side user settings such as status messages or filtering which multiple users can modify or see results from simultaneously
 * An asynchronous mailing system, where the server can log messages for a user who is not currently online
 
-Features may iterate on one another, for example group chats could have settings that must  be up to date for all users. This is intended to be fun and creative, so if you think of something interesting and aren’t sure if it qualifies, please speak to your mentor or one of the lecturers.
+Features may iterate on one another, for example NotSoSimple.group chats could have settings that must  be up to date for all users. This is intended to be fun and creative, so if you think of something interesting and aren’t sure if it qualifies, please speak to your mentor or one of the lecturers.
 
 Demonstrating how these features might fail, and how your thread safety fixes them is non-trivial and may require creative unit testing or spinning up tens or hundreds of clients atonce. You must demonstrate a test which consistently passes on your thread safe code and consistently fails on an unsafe instance of the same code (you will likely want to program to interfaces to make this switching easier).
 

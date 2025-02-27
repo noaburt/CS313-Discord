@@ -1,10 +1,11 @@
+package NotSoSimple;
 
 import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 /*
- * SimpleGui
+ * Simple.SimpleGui
  * General gui class for all servers and clients
  *
  * When instantiated, the JPanel class parameter is added to the JFrame, and the gui is started.
@@ -22,7 +23,7 @@ public class NotSoSimpleClientLoginPage extends form{
         this.addGuiDesign();
     }
 
-    /* add gui components to the form */
+    /* add gui components to the NotSoSimple.form */
     public void addGuiDesign() {
 
         /* set background color based on theme */
@@ -56,7 +57,7 @@ public class NotSoSimpleClientLoginPage extends form{
                 }
         );
 
-        /* add components to form */
+        /* add components to NotSoSimple.form */
         addComponents();
     }
 
