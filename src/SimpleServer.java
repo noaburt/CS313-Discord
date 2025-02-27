@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
  * SimpleServer
@@ -76,6 +79,7 @@ public class SimpleServer extends SimpleClient {
         shutdownButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 sendMessage("shutting down...");
+
                 shutdown();
             }
         });
@@ -122,7 +126,7 @@ public class SimpleServer extends SimpleClient {
             }
         } catch (IOException e) {
             //e.printStackTrace();
-            catchMessage("Client socket accept", true);
+            catchMessage("Client socket accept loop", false);
         }
 
     }
@@ -141,14 +145,10 @@ public class SimpleServer extends SimpleClient {
         }
 
         public void run() {
-            /* First message is always name etc */
+            /* Begin listening for messages */
+
             try {
                 thisInput = new DataInputStream(this.clientSocket.getInputStream());
-
-                /* Client data in form {;name;} -------------------------------------------- MIGHT NOT NEED KEEP FOR NOW */
-                String readClientData = thisInput.readUTF();
-                String clientName = readClientData.split(";")[1];
-
                 thisOutput = new DataOutputStream(clientSocket.getOutputStream());
             } catch (IOException e) {
                 //e.printStackTrace();
@@ -168,7 +168,10 @@ public class SimpleServer extends SimpleClient {
                     /* Resend message to all clients */
                     resendMessage(inputLine);
 
-                    if (inputLine.split(":")[1].equals(" has left the server\n")) {
+                    Map<String, String> receivedData = new HashMap<>();
+                    unpackageData(inputLine, receivedData);
+
+                    if (receivedData.get("req").equals(reqCodes.LEAVE.name())) {
                         //System.out.println(clientName + " has left, client handler shutdown");
                         this.shutdownClient();
                     }
@@ -178,6 +181,19 @@ public class SimpleServer extends SimpleClient {
                 catchMessage("Connection closed", false);
 
                 shutdownClient();
+            }
+        }
+
+        public void sendToClient(String message) {
+            /* Send message to this client, message should be packaged already */
+
+            try {
+                thisOutput.writeUTF(message);
+            } catch (IOException e) {
+                addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
+
+                //e.printStackTrace();
+                catchMessage("Sending message from server [" + e.getMessage() + "]", true);
             }
         }
 
@@ -243,15 +259,20 @@ public class SimpleServer extends SimpleClient {
         /* Method for sending a message from the server, with server name */
 
         try {
-            String sendMsg = clientName + ": " + message;
+            Map<String, String> data = new HashMap<String, String>();
+            data.put("name", clientName);
+            data.put("code", currentChatCode);
+            data.put("req", reqCodes.NONE.name());
+
+            String sendMsg = packageData(message, data);
 
             for (ClientHandler client : clients) {
                 if (!client.closed) {
-                    client.thisOutput.writeUTF(message);
+                    client.thisOutput.writeUTF(sendMsg);
                 }
             }
 
-            messageArea.append(sendMsg + "\n");
+            messageArea.append(message + "\n");
         } catch (IOException e) {
             addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
 
@@ -263,20 +284,14 @@ public class SimpleServer extends SimpleClient {
     public void resendMessage(String message) {
         /* Method for sending a message to all clients */
 
-        try {
-            for (ClientHandler client : clients) {
-                if (!client.closed) {
-                    client.thisOutput.writeUTF(message);
-                }
+        for (ClientHandler client : clients) {
+            if (!client.closed) {
+                client.sendToClient(message);
             }
-
-            messageArea.append(message + "\n");
-        } catch (IOException e) {
-            addMessage("Error: Failed to resend message '" + message + "'\n(" + e.getMessage() + ")");
-
-            //e.printStackTrace();
-            catchMessage("Resending message to clients [" + e.getMessage() + "]", true);
         }
+
+
+        addPackagedMessage(message);
     }
 
     @Override

@@ -9,6 +9,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
  * SimpleClient
@@ -30,7 +34,9 @@ public class SimpleClient extends JPanel {
     /* Class for all clients to be used */
 
     public int serverPort;
+
     public String clientName;
+    public String currentChatCode;
 
     public Socket clientSocket;
 
@@ -42,11 +48,32 @@ public class SimpleClient extends JPanel {
     public JButton shutdownButton;
     public JButton connectButton;
 
+    private final String separator;
+    private final String openCode;
+    private final String closeCode;
+    private final int codesLen;
+
+    enum reqCodes {
+        NONE,    // SENDING MESSAGE etc.
+        LEAVE,   // LEAVING SERVER
+        NEW_CHAT // CREATING GROUP CHAT
+    };
+
     public SimpleClient(int port, String thisName) {
         /* Setup window when client instance is created */
 
         serverPort = port;
         clientName = thisName;
+        currentChatCode = "mainchat";
+
+        /* This separates the data no matter what */
+        separator = ",-=;#";
+
+        /* This stops the user being able to type a message to close the message early (I HOPE) I HATE MYSELF THIS IS A PAIN */
+        openCode = "['*{!";
+        closeCode = "!}*']";
+
+        codesLen = openCode.length(); // All same length
 
         setLayout(new BorderLayout());
         addTextBoxes();
@@ -113,10 +140,130 @@ public class SimpleClient extends JPanel {
         System.out.println((error ? "Error: " : "Caught: ") + message);
     }
 
+    /* Add message FROM someone */
+    public void addPackagedMessage(String inputLine) {
+        /* Method for appending a message to the display, not for sending */
+        Map<String, String> data = new HashMap<>();
+        String toShow = unpackageData(inputLine, data);
+
+        messageArea.append(data.get("name") + ": " + toShow + "\n");
+    }
+
+    /* Add message for this user only */
     public void addMessage(String message) {
         /* Method for appending a message to the display, not for sending */
 
         messageArea.append(message + "\n");
+    }
+
+    public String packageData(String msg, Map<String, String> data) {
+        /* Method for packaging message data with message */
+
+        /* FORMAT => [OPENCODE]name=NAME[SEPARATOR]chat=CODE[SEPARATOR]req=CODE[CLOSECODE] [OPENCODE]MESSAGE[CLOSECODE] */
+
+        return openCode + "name=" + data.get("name") + separator + "chat=" + data.get("code") + separator + "req=" + data.get("req") + closeCode + openCode + msg + closeCode;
+    }
+
+    public String unpackageData(String fullMsg, Map<String, String> dataOut) {
+        /* Method to unpack data from received message, returns message only */
+
+        /* FORMAT => [OPENCODE]name=NAME[SEPARATOR]chat=CODE[SEPARATOR]req=CODE[CLOSECODE] [OPENCODE]MESSAGE[CLOSECODE] */
+
+        //System.out.println(clientName + " RECEIVED: " + fullMsg);
+
+        int dataStart = -1, dataEnd = -1;
+        int msgStart = -1, msgEnd = -1;
+
+        for (int i = 0; i < fullMsg.length() - (codesLen-1); i++) {
+            /* Go through with sliding window to find data, message */
+            String slidingWindow = fullMsg.substring(i, i + codesLen);
+
+            if (dataStart == -1) {
+                if (slidingWindow.equals(openCode)) {
+                    /* Start not found, current char is openCode */
+
+                    dataStart = i+codesLen;
+                }
+            } else if (dataEnd == -1) {
+                if (slidingWindow.equals(closeCode)) {
+                    /* End not found, current char is closeCode */
+
+                    dataEnd = i+codesLen;
+                }
+            } else if (msgStart == -1) {
+                if (slidingWindow.equals(openCode)) {
+                    /* Start not found, current char is openCode */
+
+                    msgStart = i + codesLen;
+                }
+            } else if (msgEnd == -1) {
+                if (slidingWindow.equals(closeCode)) {
+                    /* End not found, current char is closeCode */
+
+                    msgEnd = i;
+                }
+            }
+        }
+
+        /* If dataOut is null, return early */
+        if (dataOut == null) { return fullMsg.substring(msgStart, msgEnd); }
+
+        /* Sort data into array */
+
+        /* Parse only data from full message */
+        String allData = fullMsg.substring(dataStart, dataEnd);
+        String name = "NONE", chat = "NONE";
+        reqCodes req = reqCodes.NONE;
+
+        /* Reusing data start */
+        dataStart = 0;
+
+        for (int i = 0; i < allData.length() - (codesLen-1); i++) {
+            /* Go through with sliding window to parse data */
+            String slidingWindow = allData.substring(i, i + codesLen);
+
+            //System.out.println("SLIDING WINDOW (i = " + Integer.toString(i) + " of " + Integer.toString(allData.length() - (codesLen-2)) + "): " + slidingWindow);
+
+            if (slidingWindow.equals(separator) || slidingWindow.equals(closeCode)) {
+                /* Found separator, save data so far */
+
+                String foundData = allData.substring(dataStart, i);
+
+                /* Skip separator and begin next data */
+                i += codesLen;
+                dataStart = i;
+
+                switch(foundData.split("=")[0]) {
+                    case "name":
+                        name = foundData.substring(foundData.indexOf('=')+1);
+                        break;
+
+                    case "chat":
+                        chat = foundData.substring(foundData.indexOf('=')+1);
+                        break;
+
+                    case "req":
+                        String foundReq = foundData.substring(foundData.indexOf('=')+1);
+
+                        try {
+                            req = reqCodes.valueOf(foundReq);
+                        } catch (IllegalArgumentException e) {
+                            req = reqCodes.NONE;
+                            catchMessage("Req not found, got: " + foundReq, false);
+                        }
+                        break;
+
+                    default:
+                        System.out.println("Strange data detected, skipping");
+                }
+            }
+        }
+
+        dataOut.put("name", name);
+        dataOut.put("chat", chat);
+        dataOut.put("req", req.name());
+
+        return fullMsg.substring(msgStart, msgEnd);
     }
 
     public void sendMessage(String message) {
@@ -126,7 +273,12 @@ public class SimpleClient extends JPanel {
         if (message.trim().isEmpty()) { return; }
 
         try {
-            String sendMsg = clientName + ": " + message;
+            Map<String, String> data = new HashMap<String, String>();
+            data.put("name", clientName);
+            data.put("code", currentChatCode);
+            data.put("req", reqCodes.NONE.name());
+
+            String sendMsg = packageData(message, data);
             output.writeUTF(sendMsg);
         } catch (IOException e) {
             addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
@@ -147,10 +299,7 @@ public class SimpleClient extends JPanel {
             output = new DataOutputStream(clientSocket.getOutputStream());
             input = new DataInputStream(clientSocket.getInputStream());
 
-            /* First message is always client data -------------------------------------MIGHT NOT NEED KEEP FOR NOW */
-            output.writeUTF("{;" + clientName + ";}");
-
-            sendMessage("has joined the server\n");
+            sendMessage("has joined the server");
 
         } catch (IOException e) {
             addMessage("No server found @ localhost:" + serverPort + "\n");
@@ -177,7 +326,7 @@ public class SimpleClient extends JPanel {
                 /* Constantly read for messages and show */
                 String inputLine = input.readUTF();
 
-                addMessage(inputLine);
+                addPackagedMessage(inputLine);
             }
         } catch (IOException e) {
             /* Client has left server or server has closed */
@@ -198,23 +347,6 @@ public class SimpleClient extends JPanel {
 
             //e.printStackTrace();
             catchMessage("Failed to close client socket [" + e.getMessage() + "]", true);
-        }
-
-        //checkShutdown();
-        disableButtons();
-    }
-
-    public void checkShutdown() {
-        /* Method to check if client has already shutdown */
-
-        if (!EventQueue.isDispatchThread()) {
-            EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    checkShutdown();
-                }
-            });
-            return;
         }
 
         disableButtons();
