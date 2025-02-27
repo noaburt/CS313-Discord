@@ -53,7 +53,7 @@ public class SimpleClient extends JPanel {
     private final String closeCode;
     private final int codesLen;
 
-    private enum reqCodes {
+    enum reqCodes {
         NONE,    // SENDING MESSAGE etc.
         LEAVE,   // LEAVING SERVER
         NEW_CHAT // CREATING GROUP CHAT
@@ -140,6 +140,16 @@ public class SimpleClient extends JPanel {
         System.out.println((error ? "Error: " : "Caught: ") + message);
     }
 
+    /* Add message FROM someone */
+    public void addPackagedMessage(String inputLine) {
+        /* Method for appending a message to the display, not for sending */
+        Map<String, String> data = new HashMap<>();
+        String toShow = unpackageData(inputLine, data);
+
+        messageArea.append(data.get("name") + ": " + toShow + "\n");
+    }
+
+    /* Add message for this user only */
     public void addMessage(String message) {
         /* Method for appending a message to the display, not for sending */
 
@@ -149,16 +159,17 @@ public class SimpleClient extends JPanel {
     public String packageData(String msg, Map<String, String> data) {
         /* Method for packaging message data with message */
 
-        /* FORMAT => [OPENCODE]name='NAME'[SEPARATOR]chat='CODE'[SEPARATOR]req='INT'[CLOSECODE] [OPENCODE]MESSAGE[CLOSECODE] */
-        /* data => [name, code, req] */
+        /* FORMAT => [OPENCODE]name=NAME[SEPARATOR]chat=CODE[SEPARATOR]req=CODE[CLOSECODE] [OPENCODE]MESSAGE[CLOSECODE] */
 
-        return openCode + "name='" + data.get("name") + "'" + separator + "chat='" + data.get("code") + "'" + separator + "req='" + data.get("req") + "'" + closeCode + openCode + msg + closeCode;
+        return openCode + "name=" + data.get("name") + separator + "chat=" + data.get("code") + separator + "req=" + data.get("req") + closeCode + openCode + msg + closeCode;
     }
 
     public String unpackageData(String fullMsg, Map<String, String> dataOut) {
         /* Method to unpack data from received message, returns message only */
 
-        /* FORMAT => [OPENCODE]name='NAME'[SEPARATOR]chat='CODE'[SEPARATOR]req='INT'[CLOSECODE] [OPENCODE]MESSAGE[CLOSECODE] */
+        /* FORMAT => [OPENCODE]name=NAME[SEPARATOR]chat=CODE[SEPARATOR]req=CODE[CLOSECODE] [OPENCODE]MESSAGE[CLOSECODE] */
+
+        //System.out.println(clientName + " RECEIVED: " + fullMsg);
 
         int dataStart = -1, dataEnd = -1;
         int msgStart = -1, msgEnd = -1;
@@ -194,9 +205,13 @@ public class SimpleClient extends JPanel {
             }
         }
 
+        /* If dataOut is null, return early */
+        if (dataOut == null) { return fullMsg.substring(msgStart, msgEnd); }
+
         /* Sort data into array */
+
+        /* Parse only data from full message */
         String allData = fullMsg.substring(dataStart, dataEnd);
-        System.out.println("DATA IS: " + allData);
         String name = "NONE", chat = "NONE";
         reqCodes req = reqCodes.NONE;
 
@@ -264,7 +279,6 @@ public class SimpleClient extends JPanel {
             data.put("req", reqCodes.NONE.name());
 
             String sendMsg = packageData(message, data);
-            System.out.println("ENCODED: " + sendMsg);
             output.writeUTF(sendMsg);
         } catch (IOException e) {
             addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
@@ -312,7 +326,7 @@ public class SimpleClient extends JPanel {
                 /* Constantly read for messages and show */
                 String inputLine = input.readUTF();
 
-                addMessage(inputLine);
+                addPackagedMessage(inputLine);
             }
         } catch (IOException e) {
             /* Client has left server or server has closed */
@@ -333,23 +347,6 @@ public class SimpleClient extends JPanel {
 
             //e.printStackTrace();
             catchMessage("Failed to close client socket [" + e.getMessage() + "]", true);
-        }
-
-        //checkShutdown();
-        disableButtons();
-    }
-
-    public void checkShutdown() {
-        /* Method to check if client has already shutdown */
-
-        if (!EventQueue.isDispatchThread()) {
-            EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    checkShutdown();
-                }
-            });
-            return;
         }
 
         disableButtons();

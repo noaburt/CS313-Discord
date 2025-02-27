@@ -79,6 +79,7 @@ public class SimpleServer extends SimpleClient {
         shutdownButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 sendMessage("shutting down...");
+
                 shutdown();
             }
         });
@@ -144,7 +145,8 @@ public class SimpleServer extends SimpleClient {
         }
 
         public void run() {
-            /* First message is always name etc */
+            /* Begin listening for messages */
+
             try {
                 thisInput = new DataInputStream(this.clientSocket.getInputStream());
                 thisOutput = new DataOutputStream(clientSocket.getOutputStream());
@@ -166,13 +168,10 @@ public class SimpleServer extends SimpleClient {
                     /* Resend message to all clients */
                     resendMessage(inputLine);
 
-                    Map<String, String> receivedData = new HashMap<String, String>(); // ClientName, ChatCode, UserRequest
-                    String receivedMsg = unpackageData(inputLine, receivedData);
+                    Map<String, String> receivedData = new HashMap<>();
+                    unpackageData(inputLine, receivedData);
 
-                    System.out.println("DATA: " + receivedData);
-                    System.out.println("RECEIVED: " + receivedMsg);
-
-                    if (receivedMsg.equals("has left the server")) {
+                    if (receivedData.get("req").equals(reqCodes.LEAVE.name())) {
                         //System.out.println(clientName + " has left, client handler shutdown");
                         this.shutdownClient();
                     }
@@ -186,13 +185,10 @@ public class SimpleServer extends SimpleClient {
         }
 
         public void sendToClient(String message) {
-            /* Format the message and send to this client */
-
-            String[] data = message.split(";"); /* Format -->   { ; NAME ; CHAT_CODE ; } MESSAGE */
-            String toSend = "[" + data[2] + "] " + data[1] + ": " + message.split("}")[1];
+            /* Send message to this client, message should be packaged already */
 
             try {
-                thisOutput.writeUTF(toSend);
+                thisOutput.writeUTF(message);
             } catch (IOException e) {
                 addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
 
@@ -263,15 +259,20 @@ public class SimpleServer extends SimpleClient {
         /* Method for sending a message from the server, with server name */
 
         try {
-            String sendMsg = clientName + ": " + message;
+            Map<String, String> data = new HashMap<String, String>();
+            data.put("name", clientName);
+            data.put("code", currentChatCode);
+            data.put("req", reqCodes.NONE.name());
+
+            String sendMsg = packageData(message, data);
 
             for (ClientHandler client : clients) {
                 if (!client.closed) {
-                    client.thisOutput.writeUTF(message);
+                    client.thisOutput.writeUTF(sendMsg);
                 }
             }
 
-            messageArea.append(sendMsg + "\n");
+            messageArea.append(message + "\n");
         } catch (IOException e) {
             addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
 
@@ -289,7 +290,8 @@ public class SimpleServer extends SimpleClient {
             }
         }
 
-        messageArea.append("[" + message.split(";")[2] + "] " + message.split(";")[1] + ": " + message.split("}")[1] + "\n");
+
+        addPackagedMessage(message);
     }
 
     @Override
