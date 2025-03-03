@@ -1,6 +1,8 @@
 package NotSoSimple;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -34,10 +36,13 @@ public class simpleChatRoom extends form{
 
         JTextArea messages = new JTextArea();
         messages.setEditable(false);
-        JTextArea message = new JTextArea();
+        JTextField message = new JTextField();
 
         componentList.put("Messages", commonconstants.makeScroller(0, formColumns[0], getRowPosition(0) + (commonconstants.FIELD_DIST/2), this.getWidth() - (formColumns[0]*2), 200, messages));
         componentList.put("Message", commonconstants.makeScroller(0, formColumns[0], getRowPosition(0) + (commonconstants.FIELD_DIST/2) + 200, this.getWidth() - (formColumns[0]*2), 20, message));
+
+        client.messageArea = messages;
+        client.messageField = message;
 
         // disconnect
         componentList.put("leaveChat", commonconstants.makeButton("Leave Chat", 0, formColumns[0], commonconstants.WIN_SIZE[1] - commonconstants.BUTTON_SIZE[1] - 70,0));
@@ -54,6 +59,13 @@ public class simpleChatRoom extends form{
 
                 new NotEvenCloseToSimpleSelectionPage(client,0).setVisible(true);  // THIS MIGHT GIVE PROBLEMS AS VALIDATIOPN ON CONNECTION NOT REDONE PROPERLY
                 simpleChatRoom.this.dispose();
+            }
+        });
+
+        client.messageField.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                client.sendMessage(client.messageField.getText());
+                client.messageField.setText(null);
             }
         });
 

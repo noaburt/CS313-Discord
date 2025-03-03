@@ -31,6 +31,7 @@ public class NotSoSimpleClient{
     public int serverPort;
     public String clientName;
     public Boolean connected = false;
+    private String roomCode = "";
 
     public Socket clientSocket;
 
@@ -127,6 +128,8 @@ public class NotSoSimpleClient{
         }*/
     }
 
+
+
     public void shutdown() {
         /* Method for completing all steps for disconnecting client */
 
@@ -174,5 +177,14 @@ public class NotSoSimpleClient{
 
     public void setClientName(String clientName) {
             this.clientName = clientName;
+    }
+    public String getClientName() {
+        return clientName;
+    }
+    public String getRoomCode() {
+        return roomCode;
+    }
+    public void setRoomCode(String roomCode) {
+        this.roomCode = roomCode;
     }
 }

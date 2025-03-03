@@ -32,7 +32,7 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
         /* create title, labels, fields, and buttons, and add to component list */
         componentList.put("Title", commonconstants.makeTitle("DISCORD", 0));
         // welcome message
-        componentList.put("welcomeMassage", commonconstants.makeSubheading("Welcome " + client.clientName + " " + client.connected, 0, formColumns[0], getRowPosition(0), SwingConstants.LEFT));
+        componentList.put("welcomeMassage", commonconstants.makeSubheading("Welcome " + client.clientName + " " + (client.connected ? "Connected" : "Not Connected"), 0, formColumns[0], getRowPosition(0), SwingConstants.LEFT));
         // join global chat
         componentList.put("globalServer", commonconstants.makeButton("Connect To Global Chat Server", 0, formColumns[0], commonconstants.WIN_SIZE[1] - 260 - commonconstants.BUTTON_SIZE[1],150));
         // create chat room
@@ -52,6 +52,7 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
 
                          */
                         String code = "GLOBAL";
+                        client.setRoomCode(code);
                         new simpleChatRoom(client,0 , code).setVisible(true);
                         NotEvenCloseToSimpleSelectionPage.this.dispose();
                     }
@@ -91,7 +92,9 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
                                 DISCONNECT THEN SHOW LOGIN PAGE
 
                          */
-                        new NotSoSimpleClientLoginPage(client,0).setVisible(true);
+                        client.connected = false;
+                        client.setRoomCode("");
+                        new NotSoSimpleClientLoginPage(null,0).setVisible(true);
                         NotEvenCloseToSimpleSelectionPage.this.dispose();
                     }
                 }
