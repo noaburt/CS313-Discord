@@ -30,6 +30,7 @@ public class NotSoSimpleClient{
 
     public int serverPort;
     public String clientName;
+    public Boolean connected = false;
 
     public Socket clientSocket;
 
@@ -81,13 +82,12 @@ public class NotSoSimpleClient{
     public void connect() {
         /* Method to attempt to connect to server */
 
-        addMessage("Connecting to server...");
-
         try {
             /* Create socket to server, and output / input data streams */
             clientSocket = new Socket("localhost", serverPort);
             output = new DataOutputStream(clientSocket.getOutputStream());
             input = new DataInputStream(clientSocket.getInputStream());
+            this.connected = true;
 
             /* First message is always client data -------------------------------------MIGHT NOT NEED KEEP FOR NOW */
             output.writeUTF("{;" + clientName + ";}");
@@ -95,15 +95,12 @@ public class NotSoSimpleClient{
             sendMessage("has joined the server\n");
 
         } catch (IOException e) {
-            addMessage("No server found @ localhost:" + serverPort + "\n");
             shutdown();
-
-            catchMessage("Didn't find server", false);
             return;
         }
 
-        try {
-            /* If connects successfully, allow sending messages, activate buttons */
+        /*try {
+            /* If connects successfully, allow sending messages, activate buttons
             messageField.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     sendMessage(messageField.getText());
@@ -114,20 +111,20 @@ public class NotSoSimpleClient{
             enableButtons();
             addMessage("Successfully connected to server\n");
 
-            /* While loops continue until exception is thrown */
+            /* While loops continue until exception is thrown
             while (true) {
-                /* Constantly read for messages and show */
+                /* Constantly read for messages and show
                 String inputLine = input.readUTF();
 
                 addMessage(inputLine);
             }
         } catch (IOException e) {
-            /* Client has left server or server has closed */
+            /* Client has left server or server has closed
             addMessage("Leaving server, goodbye...\n");
             shutdown();
 
             catchMessage("Client left server", false);
-        }
+        }*/
     }
 
     public void shutdown() {
@@ -136,10 +133,7 @@ public class NotSoSimpleClient{
         try {
             clientSocket.close();
         } catch (IOException e) {
-            addMessage("Error: Failed to leave server\n(" + e.getMessage() + ")");
-
-            //e.printStackTrace();
-            catchMessage("Failed to close client socket [" + e.getMessage() + "]", true);
+            this.connected = false;
         }
 
         //checkShutdown();

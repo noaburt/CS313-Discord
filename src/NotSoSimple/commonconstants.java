@@ -5,6 +5,9 @@ import java.awt.*;
 
 public class commonconstants {
 
+    public static final int PORT = 4444;
+
+
     /* gui theme */
     public static final int THEME_DARK = 1;
     public static final int THEME_LIGHT = 0;

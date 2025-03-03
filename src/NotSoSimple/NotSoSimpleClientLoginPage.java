@@ -51,6 +51,9 @@ public class NotSoSimpleClientLoginPage extends form{
                                 DO CONNECTION STUFF HERE THEN IF CONNECT SHOW 'HOME' PAGE
 
                          */
+                        NotSoSimpleClient CLIENT = new NotSoSimpleClient(commonconstants.PORT,textComponentList.get("uNameField").getText());
+                        CLIENT.connect();
+                        client = CLIENT;
                         new NotEvenCloseToSimpleSelectionPage(client, 0).setVisible(true);
                         NotSoSimpleClientLoginPage.this.dispose();
                     }

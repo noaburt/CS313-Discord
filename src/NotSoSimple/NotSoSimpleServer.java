@@ -54,8 +54,8 @@ public class NotSoSimpleServer extends SimpleClient {
 
         try {
             serverSocket = new ServerSocket(serverPort);
-        } catch (IOException e) {
-
+        } catch (Exception e) {
+            System.out.println("Server could not be started");
         }
 
 
@@ -64,7 +64,7 @@ public class NotSoSimpleServer extends SimpleClient {
                 clients.add(new ClientHandler(serverSocket.accept()));
                 clients.getLast().start();
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             catchMessage("Client socket accept", true);
         }
 
