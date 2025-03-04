@@ -128,8 +128,6 @@ public class NotSoSimpleClient{
         }*/
     }
 
-
-
     public void shutdown() {
         /* Method for completing all steps for disconnecting client */
 

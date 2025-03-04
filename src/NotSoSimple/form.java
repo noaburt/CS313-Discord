@@ -13,9 +13,9 @@ import java.util.HashMap;
 public abstract class form extends JFrame {
 
     /* global theme and component list for gui */
-    public static NotSoSimpleClient client;
-    public static Map<String, JComponent> componentList;
-    public static Map<String, JTextComponent> textComponentList;
+    public  NotSoSimpleClient client;
+    public  Map<String, JComponent> componentList;
+    public Map<String, JTextComponent> textComponentList;
     public static int[] formColumns;
 
     /* constructor */

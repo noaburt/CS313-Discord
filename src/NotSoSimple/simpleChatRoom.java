@@ -62,10 +62,10 @@ public class simpleChatRoom extends form{
             }
         });
 
-        client.messageField.addActionListener(new ActionListener() {
+        message.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                client.sendMessage(client.messageField.getText());
-                client.messageField.setText(null);
+                client.sendMessage(message.getText());
+                message.setText(null);
             }
         });
 

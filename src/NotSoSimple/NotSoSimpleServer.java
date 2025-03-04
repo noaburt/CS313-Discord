@@ -107,7 +107,6 @@ public class NotSoSimpleServer extends SimpleClient {
                 while (true) {
                     /* Read input and resend */
                     inputLine = thisInput.readUTF();
-
                     /* Resend message to all clients */
                     resendMessage(inputLine);
 
@@ -193,7 +192,6 @@ public class NotSoSimpleServer extends SimpleClient {
                 }
             }
 
-            messageArea.append(message + "\n");
         } catch (IOException e) {
             addMessage("Error: Failed to resend message '" + message + "'\n(" + e.getMessage() + ")");
 
