@@ -166,11 +166,20 @@ public class SimpleServer extends SimpleClient {
                     /* Read input and resend */
                     inputLine = thisInput.readUTF();
 
-                    /* Resend message to all clients */
-                    resendMessage(inputLine);
-
+                    /* Strip data from received */
                     Map<String, String> receivedData = new HashMap<>();
                     unpackageData(inputLine, receivedData);
+
+                    /* Client has requested a new chat room */
+                    if (receivedData.get("req").equals(reqCodes.NEW_CHAT.name())) {
+                        createRoom();
+
+                        /* No message with request, don't resend */
+                        continue;
+                    }
+
+                    /* Resend message to all clients */
+                    resendMessage(inputLine);
 
                     if (receivedData.get("req").equals(reqCodes.LEAVE.name())) {
                         //System.out.println(clientName + " has left, client handler shutdown");
@@ -293,6 +302,11 @@ public class SimpleServer extends SimpleClient {
 
 
         addPackagedMessage(message);
+    }
+
+    public void createRoom() { //------------------------------------------ PLACEHOLDER
+        /* Method for creating a new chat room */
+        System.out.println("Creating a new room...");
     }
 
     @Override

@@ -287,6 +287,25 @@ public class SimpleClient extends JPanel {
         }
     }
 
+    public void requestChat() {
+        /* Method for requesting a new 'chatroom' from the server */
+
+        try {
+            Map<String, String> data = new HashMap<String, String>();
+            data.put("name", clientName);
+            data.put("code", currentChatCode);
+            data.put("req", reqCodes.NEW_CHAT.name());
+
+            String sendMsg = packageData("", data);
+            output.writeUTF(sendMsg);
+        } catch (IOException e) {
+            addMessage("Error: Failed to request new chat\n(" + e.getMessage() + ")");
+
+            //e.printStackTrace();
+            catchMessage("Sending chat request from client [" + e.getMessage() + "] to server [" + serverPort + "]", true);
+        }
+    }
+
     public void connect() {
         /* Method to attempt to connect to server */
 
