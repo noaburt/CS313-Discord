@@ -172,7 +172,7 @@ public class SimpleServer extends SimpleClient {
 
                     /* Client has requested a new chat room */
                     if (receivedData.get("req").equals(reqCodes.NEW_CHAT.name())) {
-                        createRoom();
+                        createRoom(this);
 
                         /* No message with request, don't resend */
                         continue;
@@ -304,9 +304,19 @@ public class SimpleServer extends SimpleClient {
         addPackagedMessage(message);
     }
 
-    public void createRoom() { //------------------------------------------ PLACEHOLDER
+    public void createRoom(ClientHandler client) { //------------------------------------------ PLACEHOLDER
         /* Method for creating a new chat room */
         System.out.println("Creating a new room...");
+        String chatCode = "abcdef";
+
+        Map<String, String> data = new HashMap<String, String>();
+        data.put("name", clientName);
+        data.put("code", chatCode);
+        data.put("req", reqCodes.NEW_CHAT_CONF.name());
+
+        String sendMsg = packageData("", data);
+        System.out.println(sendMsg);
+        client.sendToClient(sendMsg);
     }
 
     @Override

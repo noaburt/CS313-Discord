@@ -46,6 +46,7 @@ public class SimpleClient extends JPanel {
     public JTextField messageField;
     public JButton shutdownButton;
     public JButton connectButton;
+    public JButton newChatButton;
 
     private final String separator;
     private final String openCode;
@@ -53,9 +54,10 @@ public class SimpleClient extends JPanel {
     private final int codesLen;
 
     enum reqCodes {
-        NONE,    // SENDING MESSAGE etc.
-        LEAVE,   // LEAVING SERVER
-        NEW_CHAT // CREATING GROUP CHAT
+        NONE,          // SENDING MESSAGE etc.
+        LEAVE,         // LEAVING SERVER
+        NEW_CHAT,      // CREATING GROUP CHAT
+        NEW_CHAT_CONF  // CONFIRMING NEW GC CODE
     };
 
     public SimpleClient(int port, String thisName) {
@@ -128,8 +130,16 @@ public class SimpleClient extends JPanel {
             }
         });
 
+        newChatButton = new JButton("Create New Chat");
+        newChatButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                requestChat();
+            }
+        });
+
         panel.add(shutdownButton);
         panel.add(connectButton);
+        panel.add(newChatButton);
         return panel;
     }
 
@@ -144,6 +154,17 @@ public class SimpleClient extends JPanel {
         /* Method for appending a message to the display, not for sending */
         Map<String, String> data = new HashMap<>();
         String toShow = unpackageData(inputLine, data);
+
+        System.out.println(inputLine);
+
+        if (data.get("req").equals(reqCodes.NEW_CHAT_CONF.name())) {
+            /* Server has confirmed new chat */
+            currentChatCode = data.get("code");
+
+            System.out.println("Client joined new chat room: " + currentChatCode);
+
+            return;
+        }
 
         messageArea.append(data.get("name") + ": " + toShow + "\n");
     }
@@ -211,7 +232,7 @@ public class SimpleClient extends JPanel {
 
         /* Parse only data from full message */
         String allData = fullMsg.substring(dataStart, dataEnd);
-        String name = "NONE", chat = "NONE";
+        String name = "NONE", code = "NONE";
         reqCodes req = reqCodes.NONE;
 
         /* Reusing data start */
@@ -238,7 +259,7 @@ public class SimpleClient extends JPanel {
                         break;
 
                     case "chat":
-                        chat = foundData.substring(foundData.indexOf('=')+1);
+                        code = foundData.substring(foundData.indexOf('=')+1);
                         break;
 
                     case "req":
@@ -259,7 +280,7 @@ public class SimpleClient extends JPanel {
         }
 
         dataOut.put("name", name);
-        dataOut.put("chat", chat);
+        dataOut.put("code", code);
         dataOut.put("req", req.name());
 
         return fullMsg.substring(msgStart, msgEnd);
@@ -376,6 +397,7 @@ public class SimpleClient extends JPanel {
         messageField.setEditable(false);
         connectButton.setEnabled(true);
         shutdownButton.setEnabled(false);
+        newChatButton.setEnabled(false);
     }
 
     public void enableButtons() {
@@ -384,5 +406,6 @@ public class SimpleClient extends JPanel {
         messageField.setEditable(true);
         connectButton.setEnabled(false);
         shutdownButton.setEnabled(true);
+        newChatButton.setEnabled(true);
     }
 }
