@@ -40,7 +40,7 @@ public class groupList {
         return code;
     }
 
-    public void createGroup(){
+    public group createGroup(){
         boolean isUnique = false;
         String randomCode = bensWonderfulFunction();
         while(!isUnique){
@@ -58,6 +58,8 @@ public class groupList {
                 isUnique = true;
             }
         }
-        addGroup(new group(randomCode));
+        group G = new group(randomCode);
+        addGroup(G);
+        return G;
     }
 }

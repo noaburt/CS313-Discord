@@ -93,40 +93,26 @@ public class NotSoSimpleClient{
             /* First message is always client data -------------------------------------MIGHT NOT NEED KEEP FOR NOW */
             output.writeUTF("{;" + clientName + ";}");
 
-            sendMessage("has joined the server\n");
 
         } catch (IOException e) {
             shutdown();
             return;
         }
 
-        /*try {
-            /* If connects successfully, allow sending messages, activate buttons
-            messageField.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    sendMessage(messageField.getText());
-                    messageField.setText(null);
-                }
-            });
+    }
 
-            enableButtons();
-            addMessage("Successfully connected to server\n");
-
-            /* While loops continue until exception is thrown
+    public void listening(){
+        try{
             while (true) {
-                /* Constantly read for messages and show
                 String inputLine = input.readUTF();
 
                 addMessage(inputLine);
             }
-        } catch (IOException e) {
-            /* Client has left server or server has closed
-            addMessage("Leaving server, goodbye...\n");
-            shutdown();
+        } catch (Exception e) {
 
-            catchMessage("Client left server", false);
-        }*/
+        }
     }
+
 
     public void shutdown() {
         /* Method for completing all steps for disconnecting client */

@@ -56,7 +56,9 @@ public class simpleChatRoom extends form{
                     close this open home page
 
                  */
-
+                client.messageArea.setText("");
+                client.messageField.setText("");
+                client.setRoomCode("");
                 new NotEvenCloseToSimpleSelectionPage(client,0).setVisible(true);  // THIS MIGHT GIVE PROBLEMS AS VALIDATIOPN ON CONNECTION NOT REDONE PROPERLY
                 simpleChatRoom.this.dispose();
             }
@@ -70,6 +72,13 @@ public class simpleChatRoom extends form{
         });
 
         /* add components to NotSoSimple.form */
+
+        new Thread(new Runnable() {
+            public void run() {
+                client.listening();
+            }
+        }).start();
+
         addComponents();
     }
 

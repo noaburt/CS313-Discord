@@ -68,6 +68,7 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
                             creates a new chat with unique code check for a unique code then show chat page
 
                          */
+
                     }
                 }
         );
@@ -103,12 +104,6 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
         /* add components to NotSoSimple.form */
         addComponents();
     }
-
-    /* validate login details, login or display error
-     *
-     * @return int: error code (from NotSoSimple.commonconstants)
-     */
-
 
 
 }

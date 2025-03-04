@@ -40,6 +40,7 @@ public class NotSoSimpleServer extends SimpleClient {
 
     public ServerSocket serverSocket;
     public ArrayList<ClientHandler> clients;
+    public groupList groups = new groupList();
 
     public NotSoSimpleServer(int port) {
         super(port, "Server");
@@ -226,5 +227,10 @@ public class NotSoSimpleServer extends SimpleClient {
 
         addMessage("Server stopped\n");
 
+    }
+
+    public String reqServer(){
+        group g = groups.createGroup();
+        return g.getGroupCode();
     }
 }
