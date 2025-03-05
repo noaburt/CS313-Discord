@@ -1,13 +1,25 @@
-import Simple.SimpleGui;
-import Simple.SimpleServer;
+import NotSoSimple.*;
+import javax.swing.*;
 
 public class TestNewGuiServer {
 
     public static void main(String[] args) {
 
-        //Simple.SimpleGui client1 = new Simple.SimpleGui(new Simple.SimpleClient(4444, "Client 1"));
-        //Simple.SimpleGui client2 = new Simple.SimpleGui(new Simple.SimpleClient(4444, "Client 2"));
-        SimpleGui server = new SimpleGui(new SimpleServer(4444));
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                /* instantiate a login NotSoSimple.form and show */
+                new Thread(new Runnable() {
+                    public void run() {
+                        NotSoSimpleServer S = new NotSoSimpleServer(commonconstants.PORT);
+                        S.connect();
+                    }
+                }).start();
+
+                new NotSoSimpleClientLoginPage(null, 0).setVisible(true);
+                new NotSoSimpleClientLoginPage(null, 0).setVisible(true);
+            }
+        });
 
 
     }

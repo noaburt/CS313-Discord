@@ -1,45 +1,27 @@
 package NotSoSimple;
+import Simple.*;
 
-import Simple.SimpleClient;
-
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
-/*
- * NotSoSimple.NotSoSimpleServer
- * Extension of NotSoSimple.NotSoSimpleClient, for acting as a server
- *
- * Messaging works as follows:
- *
- *           Client send message -> Server
- *           Server sends received message -> All connected clients
- *
- * Data is packaged as:
- * name=data.NAME, chat=data.CODE, req=data.REQ
- */
+public class NotSoSimpleServer2 extends SimpleClient {
 
-public class NotSoSimpleServer extends NotSoSimpleClient {
 
     public ServerSocket serverSocket;
     public ArrayList<ClientHandler> clients;
+    public groupList groups = new groupList();
 
-    public NotSoSimpleServer(int port) {
+    public NotSoSimpleServer2(int port) {
         super(port, "Server");
 
         clients = new ArrayList<>();
     }
+
 
     @Override
     public void connect() {
@@ -47,19 +29,18 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
 
         try {
             serverSocket = new ServerSocket(serverPort);
-        } catch (IOException e) {
-            //e.printStackTrace();
-            catchMessage("Connecting to server [" + e.getMessage() + "]", true);
+        } catch (Exception e) {
+            System.out.println("Server could not be started");
         }
+
 
         try {
             while (true) {
                 clients.add(new ClientHandler(serverSocket.accept()));
                 clients.getLast().start();
             }
-        } catch (IOException e) {
-            //e.printStackTrace();
-            catchMessage("Client socket accept loop", false);
+        } catch (Exception e) {
+            catchMessage("Client socket accept", true);
         }
 
     }
@@ -78,10 +59,14 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
         }
 
         public void run() {
-            /* Begin listening for messages */
-
+            /* First message is always name etc */
             try {
                 thisInput = new DataInputStream(this.clientSocket.getInputStream());
+
+                /* Client data in NotSoSimple.form {;name;} -------------------------------------------- MIGHT NOT NEED KEEP FOR NOW */
+                String readClientData = thisInput.readUTF();
+                String clientName = readClientData.split(";")[1];
+
                 thisOutput = new DataOutputStream(clientSocket.getOutputStream());
             } catch (IOException e) {
                 //e.printStackTrace();
@@ -97,45 +82,15 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                 while (true) {
                     /* Read input and resend */
                     inputLine = thisInput.readUTF();
-
-                    /* Strip data from received */
-                    Map<String, String> receivedData = new HashMap<>();
-                    unpackageData(inputLine, receivedData);
-
-                    /* Client has requested a new chat room */
-                    if (receivedData.get("req").equals(reqCodes.NEW_CHAT.name())) {
-                        createRoom(this);
-
-                        /* No message with request, don't resend */
-                        continue;
-                    }
-
                     /* Resend message to all clients */
                     resendMessage(inputLine);
 
-                    if (receivedData.get("req").equals(reqCodes.LEAVE.name())) {
-                        //System.out.println(clientName + " has left, client handler shutdown");
-                        this.shutdownClient();
-                    }
                 }
             } catch (IOException e) {
                 //e.printStackTrace();
                 catchMessage("Connection closed", false);
 
                 shutdownClient();
-            }
-        }
-
-        public void sendToClient(String message) {
-            /* Send message to this client, message should be packaged already */
-
-            try {
-                thisOutput.writeUTF(message);
-            } catch (IOException e) {
-                addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
-
-                //e.printStackTrace();
-                catchMessage("Sending message from server [" + e.getMessage() + "]", true);
             }
         }
 
@@ -164,30 +119,60 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
         }
     }
 
-    public void resendMessage(String message) {
-        /* Method for sending the already packaged message back to all clients */
+    public void checkStartServer() {
+        /* Check if a server is already started, make button inactive */
 
-        for (ClientHandler client : clients) {
-            if (!client.closed) {
-                client.sendToClient(message);
-            }
+        if (!EventQueue.isDispatchThread()) {
+            EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    checkStartServer();
+                }
+            });
+            return;
         }
 
-        addPackagedMessage(message);
+        enableButtons();
     }
 
-    public void createRoom(ClientHandler client) { //------------------------------------------ PLACEHOLDER
-        /* Method for creating a new chat room */
-        String chatCode = "abcdef";
+    @Override
+    public void sendMessage(String message) {
+        /* Method for sending a message from the server, with server name */
 
-        Map<String, String> data = new HashMap<String, String>();
-        data.put("name", clientName);
-        data.put("code", chatCode);
-        data.put("req", reqCodes.NEW_CHAT_CONF.name());
+        try {
+            String sendMsg = clientName + ": " + message;
 
-        String sendMsg = packageData("", data);
-        System.out.println(sendMsg);
-        client.sendToClient(sendMsg);
+            for (ClientHandler client : clients) {
+                if (!client.closed) {
+                    client.thisOutput.writeUTF(message);
+                }
+            }
+
+            messageArea.append(sendMsg + "\n");
+        } catch (IOException e) {
+            addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
+
+            //e.printStackTrace();
+            catchMessage("Sending message from server [" + e.getMessage() + "]", true);
+        }
+    }
+
+    public void resendMessage(String message) {
+        /* Method for sending a message to all clients */
+
+        try {
+            for (ClientHandler client : clients) {
+                if (!client.closed) {
+                    client.thisOutput.writeUTF(message);
+                }
+            }
+
+        } catch (IOException e) {
+            addMessage("Error: Failed to resend message '" + message + "'\n(" + e.getMessage() + ")");
+
+            //e.printStackTrace();
+            catchMessage("Resending message to clients [" + e.getMessage() + "]", true);
+        }
     }
 
     @Override
@@ -213,5 +198,13 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                 catchMessage("Closing server socket", true);
             }
         }
+
+        addMessage("Server stopped\n");
+
+    }
+
+    public String reqServer(){
+        group g = groups.createGroup();
+        return g.getGroupCode();
     }
 }

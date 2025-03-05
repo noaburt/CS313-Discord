@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 public class simpleChatRoom extends form{
 
     private String code;
+
     public simpleChatRoom(NotSoSimpleClient client, int err, String code) {
 
         /* set title bar */

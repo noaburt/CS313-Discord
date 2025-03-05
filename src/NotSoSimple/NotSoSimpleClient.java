@@ -244,8 +244,6 @@ public class NotSoSimpleClient extends JPanel {
     public void connect() {
         /* Method to attempt to connect to server */
 
-        addMessage("Connecting to server...");
-
         try {
             /* Create socket to server, and output / input data streams */
             clientSocket = new Socket("localhost", serverPort);
@@ -253,16 +251,14 @@ public class NotSoSimpleClient extends JPanel {
             input = new DataInputStream(clientSocket.getInputStream());
 
             sendMessage("has joined the server");
-            addMessage("Successfully connected to server\n");
 
             connected = true;
             enableButtons();
 
         } catch (IOException e) {
-            addMessage("No server found @ localhost:" + serverPort + "\n");
             shutdown();
 
-            catchMessage("Didn't find server", false);
+            catchMessage("No server found @ localhost:" + serverPort, false);
         }
     }
 
