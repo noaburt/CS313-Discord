@@ -41,6 +41,7 @@ public class SimpleClient extends JPanel {
     public JTextField messageField;
     public JButton shutdownButton;
     public JButton connectButton;
+    public JButton uploadButton;
 
     public SimpleClient(int port, String thisName) {
         /* Setup window when client instance is created */
@@ -65,6 +66,8 @@ public class SimpleClient extends JPanel {
 
         messageField = new JTextField(10);
         messageField.setEditable(false);
+
+
 
         /* Keep scroll always showing the newest messages */
         JScrollPane scrollPane = new JScrollPane(messageArea);
@@ -102,8 +105,16 @@ public class SimpleClient extends JPanel {
             }
         });
 
+        uploadButton = new JButton("Upload");
+        uploadButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
         panel.add(shutdownButton);
         panel.add(connectButton);
+        panel.add(uploadButton);
         return panel;
     }
 
@@ -226,6 +237,7 @@ public class SimpleClient extends JPanel {
         messageField.setEditable(false);
         connectButton.setEnabled(true);
         shutdownButton.setEnabled(false);
+        uploadButton.setEnabled(false);
     }
 
     public void enableButtons() {
@@ -234,5 +246,6 @@ public class SimpleClient extends JPanel {
         messageField.setEditable(true);
         connectButton.setEnabled(false);
         shutdownButton.setEnabled(true);
+        uploadButton.setEnabled(true);
     }
 }
