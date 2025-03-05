@@ -34,6 +34,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
 
     public ServerSocket serverSocket;
     public ArrayList<ClientHandler> clients;
+    public groupList groups = new groupList();
 
     public NotSoSimpleServer(int port) {
         super(port, "Server");
@@ -178,7 +179,8 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
 
     public void createRoom(ClientHandler client) { //------------------------------------------ PLACEHOLDER
         /* Method for creating a new chat room */
-        String chatCode = "abcdef";
+        group g = groups.createGroup();
+        String chatCode = g.getGroupCode();
 
         Map<String, String> data = new HashMap<String, String>();
         data.put("name", clientName);
