@@ -1,23 +1,31 @@
 package NotSoSimple;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
-public class NotSoSimpleClient{
+/*
+ * NotSoSimple.NotSoSimpleClient
+ * Class for acting as a client / server
+ *
+ * Data is packaged as:
+ * name=data.NAME, chat=data.CODE, req=data.REQ
+ */
+
+public class NotSoSimpleClient extends JPanel {
     /* Class for all clients to be used */
 
     public int serverPort;
+
     public String clientName;
-    public Boolean connected = false;
-    private String roomCode = "";
+    private String currentRoomCode;
 
     public Socket clientSocket;
+    public boolean connected;
 
     public DataInputStream input;
     private DataOutputStream output;
@@ -27,12 +35,34 @@ public class NotSoSimpleClient{
     public JButton shutdownButton;
     public JButton connectButton;
 
+    private final String separator;
+    private final String openCode;
+    private final String closeCode;
+    private final int codesLen;
+
+    enum reqCodes {
+        NONE,          // SENDING MESSAGE etc.
+        LEAVE,         // LEAVING SERVER
+        NEW_CHAT,      // CREATING GROUP CHAT
+        NEW_CHAT_CONF  // CONFIRMING NEW GC CODE
+    };
+
     public NotSoSimpleClient(int port, String thisName) {
         /* Setup window when client instance is created */
 
         serverPort = port;
         clientName = thisName;
+        currentRoomCode = "mainchat";
+        connected = false;
 
+        /* This separates the data no matter what */
+        separator = ",-=;#";
+
+        /* This stops the user being able to type a message to close the message early (I HOPE) I HATE MYSELF THIS IS A PAIN */
+        openCode = "['*{!";
+        closeCode = "!}*']";
+
+        codesLen = openCode.length(); // All same length
     }
 
     public void catchMessage(String message, boolean error) {
@@ -41,10 +71,133 @@ public class NotSoSimpleClient{
         System.out.println((error ? "Error: " : "Caught: ") + message);
     }
 
+    /* Add message FROM someone */
+    public void addPackagedMessage(String inputLine) {
+        /* Method for appending a message to the display, not for sending */
+        Map<String, String> data = new HashMap<>();
+        String toShow = unpackageData(inputLine, data);
+
+        System.out.println(inputLine);
+
+        if (data.get("req").equals(reqCodes.NEW_CHAT_CONF.name())) {
+            /* Server has confirmed new chat */
+            currentRoomCode = data.get("code");
+
+            System.out.println("Client joined new chat room: " + currentRoomCode);
+
+            return;
+        }
+
+        messageArea.append(data.get("name") + ": " + toShow + "\n");
+    }
+
+    /* Add message for this user only */
     public void addMessage(String message) {
         /* Method for appending a message to the display, not for sending */
 
         messageArea.append(message + "\n");
+    }
+
+    public String packageData(String msg, Map<String, String> data) {
+        /* Method for packaging message data with message */
+
+        /* FORMAT => [OPENCODE]name=NAME[SEPARATOR]chat=CODE[SEPARATOR]req=CODE[CLOSECODE] [OPENCODE]MESSAGE[CLOSECODE] */
+
+        return openCode + "name=" + data.get("name") + separator + "chat=" + data.get("code") + separator + "req=" + data.get("req") + closeCode + openCode + msg + closeCode;
+    }
+
+    public String unpackageData(String fullMsg, Map<String, String> dataOut) {
+        /* Method to unpack data from received message, returns message only */
+
+        //System.out.println(clientName + " RECEIVED: " + fullMsg);
+
+        int dataStart = -1, dataEnd = -1;
+        int msgStart = -1, msgEnd = -1;
+
+        for (int i = 0; i < fullMsg.length() - (codesLen-1); i++) {
+            /* Go through with sliding window to find data, message */
+            String slidingWindow = fullMsg.substring(i, i + codesLen);
+
+            if (dataStart == -1) {
+                if (slidingWindow.equals(openCode)) {
+                    /* Start not found, current char is openCode */
+
+                    dataStart = i+codesLen;
+                }
+            } else if (dataEnd == -1) {
+                if (slidingWindow.equals(closeCode)) {
+                    /* End not found, current char is closeCode */
+
+                    dataEnd = i+codesLen;
+                }
+            } else if (msgStart == -1) {
+                if (slidingWindow.equals(openCode)) {
+                    /* Start not found, current char is openCode */
+
+                    msgStart = i + codesLen;
+                }
+            } else if (msgEnd == -1) {
+                if (slidingWindow.equals(closeCode)) {
+                    /* End not found, current char is closeCode */
+
+                    msgEnd = i;
+                }
+            }
+        }
+
+        /* If dataOut is null, return early */
+        if (dataOut == null) { return fullMsg.substring(msgStart, msgEnd); }
+
+        /* Sort data into array */
+
+        /* Parse only data from full message */
+        String allData = fullMsg.substring(dataStart, dataEnd);
+
+        /* Reusing data start */
+        dataStart = 0;
+
+        for (int i = 0; i < allData.length() - (codesLen-1); i++) {
+            /* Go through with sliding window to parse data */
+            String slidingWindow = allData.substring(i, i + codesLen);
+
+            //System.out.println("SLIDING WINDOW (i = " + Integer.toString(i) + " of " + Integer.toString(allData.length() - (codesLen-2)) + "): " + slidingWindow);
+
+            if (slidingWindow.equals(separator) || slidingWindow.equals(closeCode)) {
+                /* Found separator, save data so far */
+
+                String foundData = allData.substring(dataStart, i);
+
+                /* Skip separator and begin next data */
+                i += codesLen;
+                dataStart = i;
+
+                switch(foundData.split("=")[0]) {
+                    case "name":
+                        dataOut.put("name", foundData.substring(foundData.indexOf('=')+1));
+                        break;
+
+                    case "chat":
+                        dataOut.put("code", foundData.substring(foundData.indexOf('=')+1));
+                        break;
+
+                    case "req":
+                        String foundReq = foundData.substring(foundData.indexOf('=')+1);
+
+                        try {
+                            dataOut.put("req", reqCodes.valueOf(foundReq).name());
+                        } catch (IllegalArgumentException e) {
+                            dataOut.put("req", reqCodes.NONE.name());
+                            catchMessage("Req not found, got: " + foundReq, false);
+                        }
+                        break;
+
+                    default:
+                        System.out.println("Strange data detected, skipping");
+                }
+            }
+        }
+
+        return fullMsg.substring(msgStart, msgEnd);
     }
 
     public void sendMessage(String message) {
@@ -54,7 +207,12 @@ public class NotSoSimpleClient{
         if (message.trim().isEmpty()) { return; }
 
         try {
-            String sendMsg = clientName + ": " + message;
+            Map<String, String> data = new HashMap<String, String>();
+            data.put("name", clientName);
+            data.put("code", currentRoomCode);
+            data.put("req", reqCodes.NONE.name());
+
+            String sendMsg = packageData(message, data);
             output.writeUTF(sendMsg);
         } catch (IOException e) {
             addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
@@ -64,39 +222,68 @@ public class NotSoSimpleClient{
         }
     }
 
+    public void requestChat() {
+        /* Method for requesting a new 'chatroom' from the server */
+
+        try {
+            Map<String, String> data = new HashMap<String, String>();
+            data.put("name", clientName);
+            data.put("code", currentRoomCode);
+            data.put("req", reqCodes.NEW_CHAT.name());
+
+            String sendMsg = packageData("", data);
+            output.writeUTF(sendMsg);
+        } catch (IOException e) {
+            addMessage("Error: Failed to request new chat\n(" + e.getMessage() + ")");
+
+            //e.printStackTrace();
+            catchMessage("Sending chat request from client [" + e.getMessage() + "] to server [" + serverPort + "]", true);
+        }
+    }
+
     public void connect() {
         /* Method to attempt to connect to server */
+
+        addMessage("Connecting to server...");
 
         try {
             /* Create socket to server, and output / input data streams */
             clientSocket = new Socket("localhost", serverPort);
             output = new DataOutputStream(clientSocket.getOutputStream());
             input = new DataInputStream(clientSocket.getInputStream());
-            this.connected = true;
 
-            /* First message is always client data -------------------------------------MIGHT NOT NEED KEEP FOR NOW */
-            output.writeUTF("{;" + clientName + ";}");
+            sendMessage("has joined the server");
+            addMessage("Successfully connected to server\n");
 
+            connected = true;
+            enableButtons();
 
         } catch (IOException e) {
+            addMessage("No server found @ localhost:" + serverPort + "\n");
             shutdown();
-            return;
-        }
 
+            catchMessage("Didn't find server", false);
+        }
     }
 
-    public void listening(){
-        try{
+    public void listening() {
+        /* Method that runs to listen for messages */
+
+        try {
             while (true) {
+                /* Constantly read for messages and show */
                 String inputLine = input.readUTF();
 
-                addMessage(inputLine);
+                addPackagedMessage(inputLine);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
+            /* Client has left server or server has closed */
+            addMessage("Leaving server, goodbye...\n");
+            shutdown();
 
+            catchMessage("Client left server", false);
         }
     }
-
 
     public void shutdown() {
         /* Method for completing all steps for disconnecting client */
@@ -104,26 +291,13 @@ public class NotSoSimpleClient{
         try {
             clientSocket.close();
         } catch (IOException e) {
-            this.connected = false;
+            addMessage("Error: Failed to leave server\n(" + e.getMessage() + ")");
+
+            //e.printStackTrace();
+            catchMessage("Failed to close client socket [" + e.getMessage() + "]", true);
         }
 
-        //checkShutdown();
-        disableButtons();
-    }
-
-    public void checkShutdown() {
-        /* Method to check if client has already shutdown */
-
-        if (!EventQueue.isDispatchThread()) {
-            EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    checkShutdown();
-                }
-            });
-            return;
-        }
-
+        connected = false;
         disableButtons();
     }
 
@@ -143,16 +317,8 @@ public class NotSoSimpleClient{
         shutdownButton.setEnabled(true);
     }
 
-    public void setClientName(String clientName) {
-            this.clientName = clientName;
-    }
-    public String getClientName() {
-        return clientName;
-    }
-    public String getRoomCode() {
-        return roomCode;
-    }
     public void setRoomCode(String roomCode) {
-        this.roomCode = roomCode;
+        currentRoomCode = roomCode;
     }
+
 }

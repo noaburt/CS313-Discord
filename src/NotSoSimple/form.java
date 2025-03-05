@@ -13,7 +13,7 @@ import java.util.HashMap;
 public abstract class form extends JFrame {
 
     /* global theme and component list for gui */
-    public  NotSoSimpleClient client;
+    public NotSoSimpleClient client;
     public  Map<String, JComponent> componentList;
     public Map<String, JTextComponent> textComponentList;
     public static int[] formColumns;
@@ -38,7 +38,6 @@ public abstract class form extends JFrame {
         setLayout(null);
 
         /* load window in center of screen, prevent resizing */
-        setLocationRelativeTo(null);
         setResizable(false);
 
         client = _client;
