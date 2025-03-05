@@ -346,8 +346,6 @@ public class SimpleServer extends SimpleClient {
         }
 
         addMessage("Server stopped\n");
-
-        //checkShutdown();
         disableButtons();
     }
 }
