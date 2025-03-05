@@ -4,14 +4,6 @@ import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-/*
- * Simple.SimpleGui
- * General gui class for all servers and clients
- *
- * When instantiated, the JPanel class parameter is added to the JFrame, and the gui is started.
- * The run() method is run in a thread by EventQueue.invokeLater()
- */
-
 public class NotSoSimpleClientLoginPage extends form{
 
     public NotSoSimpleClientLoginPage(NotSoSimpleClient client, int err) {

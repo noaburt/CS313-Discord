@@ -9,22 +9,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-/*
- * Simple.SimpleClient
- * Implementation of JPanel class for acting as a client
- *
- * This class is instantiated and passed into Simple.SimpleGui with the JPanel content.
- * Simple.SimpleServer is an extension of this class as well, using most of the same methods.
- *
- * Actions of this Class:
- *
- * Creating gui JPanel - addTextBoxes(), makePanel()
- * Connecting to server - connect()
- * Sending messages - addMessage(), sendMessage()
- * Disconnecting server - shutdown()
- *
- */
-
 public class NotSoSimpleClient{
     /* Class for all clients to be used */
 

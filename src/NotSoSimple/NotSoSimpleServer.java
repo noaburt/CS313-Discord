@@ -9,32 +9,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-/*
- * Simple.SimpleServer
- * Implementation of JPanel class, extension of Simple.SimpleClient, for acting as a server
- *
- * Messaging works as follows:
- *
- *           Client send message -> Server
- *           Server sends received message -> All connected clients
- *
- * This class is instantiated and passed into Simple.SimpleGui with the JPanel content.
- * Simple.SimpleServer utilises most of Simple.SimpleClient, with some methods overridden.
- * The ClientHandler class contained within is used for continuously checking for client messages.
- * Array list clients contains all ClientHandlers being used by server
- *
- * NOTE - OLD HANDLERS ARE NEVER REMOVED, NEED TO FIX THIS AT SOME POINT
- *
- * Actions of this Class:
- *
- * Creating gui JPanel - addTextBoxes(), makePanel()
- * Starting the server, listen for clients - connect()
- * Recieving / listening for messages - connect(), clients, ClientHandler
- * Sending messages - addMessage(), sendMessage(), resendMessage()
- * Stopping server - shutdown()
- *
- */
-
 public class NotSoSimpleServer extends SimpleClient {
 
 
