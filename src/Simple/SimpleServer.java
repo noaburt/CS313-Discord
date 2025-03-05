@@ -39,6 +39,9 @@ import java.util.Map;
  * Sending messages - addMessage(), sendMessage(), resendMessage()
  * Stopping server - shutdown()
  *
+ * Data is packaged as:
+ *
+ * name=data.NAME, chat=data.CODE, req=data.REQ
  */
 
 public class SimpleServer extends SimpleClient {
@@ -292,14 +295,13 @@ public class SimpleServer extends SimpleClient {
     }
 
     public void resendMessage(String message) {
-        /* Method for sending a message to all clients */
+        /* Method for sending the already packaged message back to all clients */
 
         for (ClientHandler client : clients) {
             if (!client.closed) {
                 client.sendToClient(message);
             }
         }
-
 
         addPackagedMessage(message);
     }

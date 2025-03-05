@@ -27,6 +27,9 @@ import java.util.Map;
  * Sending messages - addMessage(), sendMessage()
  * Disconnecting server - shutdown()
  *
+ * Data is packaged as:
+ *
+ * name=data.NAME, chat=data.CODE, req=data.REQ
  */
 
 public class SimpleClient extends JPanel {
@@ -187,8 +190,6 @@ public class SimpleClient extends JPanel {
     public String unpackageData(String fullMsg, Map<String, String> dataOut) {
         /* Method to unpack data from received message, returns message only */
 
-        /* FORMAT => [OPENCODE]name=NAME[SEPARATOR]chat=CODE[SEPARATOR]req=CODE[CLOSECODE] [OPENCODE]MESSAGE[CLOSECODE] */
-
         //System.out.println(clientName + " RECEIVED: " + fullMsg);
 
         int dataStart = -1, dataEnd = -1;
@@ -232,8 +233,6 @@ public class SimpleClient extends JPanel {
 
         /* Parse only data from full message */
         String allData = fullMsg.substring(dataStart, dataEnd);
-        String name = "NONE", code = "NONE";
-        reqCodes req = reqCodes.NONE;
 
         /* Reusing data start */
         dataStart = 0;
@@ -255,20 +254,20 @@ public class SimpleClient extends JPanel {
 
                 switch(foundData.split("=")[0]) {
                     case "name":
-                        name = foundData.substring(foundData.indexOf('=')+1);
+                        dataOut.put("name", foundData.substring(foundData.indexOf('=')+1));
                         break;
 
                     case "chat":
-                        code = foundData.substring(foundData.indexOf('=')+1);
+                        dataOut.put("code", foundData.substring(foundData.indexOf('=')+1));
                         break;
 
                     case "req":
                         String foundReq = foundData.substring(foundData.indexOf('=')+1);
 
                         try {
-                            req = reqCodes.valueOf(foundReq);
+                            dataOut.put("req", reqCodes.valueOf(foundReq).name());
                         } catch (IllegalArgumentException e) {
-                            req = reqCodes.NONE;
+                            dataOut.put("req", reqCodes.NONE.name());
                             catchMessage("Req not found, got: " + foundReq, false);
                         }
                         break;
@@ -278,10 +277,6 @@ public class SimpleClient extends JPanel {
                 }
             }
         }
-
-        dataOut.put("name", name);
-        dataOut.put("code", code);
-        dataOut.put("req", req.name());
 
         return fullMsg.substring(msgStart, msgEnd);
     }
