@@ -45,6 +45,8 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
                          */
                         String code = "GLOBAL";
                         client.setRoomCode(code);
+                        client.messageArea.setText("");
+                        client.messageField.setText("");
                         new simpleChatRoom(client,0 , code).setVisible(true);
                         NotEvenCloseToSimpleSelectionPage.this.dispose();
                     }
@@ -60,8 +62,12 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
                             creates a new chat with unique code check for a unique code then show chat page
 
                          */
-
-
+                        String code = "";
+                        client.setRoomCode(code);
+                        client.messageArea.setText("");
+                        client.messageField.setText("");
+                        new simpleChatRoom(client,0 , code).setVisible(true);
+                        NotEvenCloseToSimpleSelectionPage.this.dispose();
                     }
                 }
         );
@@ -74,6 +80,19 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
                             ask for room code check if it is room then open the chat page if not error
 
                          */
+                        String code = "";
+                        boolean invalid = true;
+                        while (invalid) {
+                            code = JOptionPane.showInputDialog("Enter Server Code");
+                            invalid = false;
+                            // do validation
+                        }
+                        client.setRoomCode(code);
+                        client.messageArea.setText("");
+                        client.messageField.setText("");
+                        new simpleChatRoom(client,0 , code).setVisible(true);
+                        NotEvenCloseToSimpleSelectionPage.this.dispose();
+
                     }
                 }
         );
