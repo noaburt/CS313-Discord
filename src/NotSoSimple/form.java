@@ -38,6 +38,7 @@ public abstract class form extends JFrame {
         setLayout(null);
 
         /* load window in center of screen, prevent resizing */
+        setLocationRelativeTo(null);
         setResizable(false);
 
         client = _client;
