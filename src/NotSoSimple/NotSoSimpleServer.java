@@ -132,7 +132,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
             } catch (IOException e) {
                 //e.printStackTrace();
 
-                catchMessage("Client disconnected before leaving", false);
+                catchMessage("Client left the server [handler]", false);
 
             } catch (IllegalAccessException e) {
                 //e.printStackTrace();

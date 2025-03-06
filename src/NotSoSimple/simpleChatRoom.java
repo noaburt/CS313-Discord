@@ -50,12 +50,13 @@ public class simpleChatRoom extends form{
 
                  */
 
+                /* Notify server that client has left */
+                client.sendMessage("", commonconstants.reqCodes.LEAVE);
+
+                /* Reset field, area, code */
                 client.messageArea.setText("");
                 client.messageField.setText("");
                 client.setRoomCode("");
-
-                /* Notify server that client has left */
-                client.sendMessage("", commonconstants.reqCodes.LEAVE);
 
                 new NotEvenCloseToSimpleSelectionPage(client,0).setVisible(true);  // THIS MIGHT GIVE PROBLEMS AS VALIDATIOPN ON CONNECTION NOT REDONE PROPERLY
                 simpleChatRoom.this.dispose();

@@ -207,14 +207,14 @@ public class NotSoSimpleClient extends JPanel {
         return fullMsg.substring(msgStart, msgEnd);
     }
 
-    public void sendMessage(String message, commonconstants.reqCodes req) {
+    public void sendMessage(String message, commonconstants.reqCodes request) {
         /* Method for sending a message to the server, including name and displaying on gui */
 
-        /* No blank messages */
-        if (message.trim().isEmpty()) { return; }
+        /* No blank messages without request */
+        if (message.trim().isEmpty() && request == commonconstants.reqCodes.NONE) { return; }
 
         try {
-            HashMap<String, String> data = makeData(clientName, currentRoomCode, req);
+            HashMap<String, String> data = makeData(clientName, currentRoomCode, request);
 
             String sendMsg = packageData(message, data);
             output.writeUTF(sendMsg);
@@ -277,7 +277,7 @@ public class NotSoSimpleClient extends JPanel {
             addMessage("Leaving server, goodbye...\n");
             shutdown();
 
-            catchMessage("Client left server", false);
+            catchMessage("Client has left server [client]", false);
         }
     }
 
