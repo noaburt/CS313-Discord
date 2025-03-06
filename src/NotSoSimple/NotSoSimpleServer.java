@@ -174,7 +174,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
             }
         }
 
-        addPackagedMessage(message);
+        //addPackagedMessage(message);
     }
 
     public void createRoom(ClientHandler client) {
