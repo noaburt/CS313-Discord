@@ -49,9 +49,14 @@ public class simpleChatRoom extends form{
                     close this open home page
 
                  */
+
                 client.messageArea.setText("");
                 client.messageField.setText("");
                 client.setRoomCode("");
+
+                /* Notify server that client has left */
+                client.sendMessage("", commonconstants.reqCodes.LEAVE);
+
                 new NotEvenCloseToSimpleSelectionPage(client,0).setVisible(true);  // THIS MIGHT GIVE PROBLEMS AS VALIDATIOPN ON CONNECTION NOT REDONE PROPERLY
                 simpleChatRoom.this.dispose();
             }
@@ -59,7 +64,7 @@ public class simpleChatRoom extends form{
 
         message.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                client.sendMessage(message.getText());
+                client.sendMessage(message.getText(), commonconstants.reqCodes.NONE);
                 message.setText(null);
             }
         });

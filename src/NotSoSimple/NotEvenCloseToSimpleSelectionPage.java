@@ -62,11 +62,11 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
                             creates a new chat with unique code check for a unique code then show chat page
 
                          */
-                        String code = "";
-                        client.setRoomCode(code);
+                        client.requestChat();
+
                         client.messageArea.setText("");
                         client.messageField.setText("");
-                        new simpleChatRoom(client,0 , code).setVisible(true);
+                        new simpleChatRoom(client,0 , client.getRoomCode()).setVisible(true);
                         NotEvenCloseToSimpleSelectionPage.this.dispose();
                     }
                 }

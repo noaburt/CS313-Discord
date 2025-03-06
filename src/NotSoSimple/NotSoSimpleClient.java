@@ -40,20 +40,16 @@ public class NotSoSimpleClient extends JPanel {
     private final String closeCode;
     private final int codesLen;
 
-    enum reqCodes {
-        NONE,          // SENDING MESSAGE etc.
-        LEAVE,         // LEAVING SERVER
-        NEW_CHAT,      // CREATING GROUP CHAT
-        NEW_CHAT_CONF  // CONFIRMING NEW GC CODE
-    };
-
     public NotSoSimpleClient(int port, String thisName) {
         /* Setup window when client instance is created */
 
         serverPort = port;
         clientName = thisName;
-        currentRoomCode = "mainchat";
+        currentRoomCode = "";
         connected = false;
+
+        messageArea = new JTextArea();
+        messageField = new JTextField();
 
         /* This separates the data no matter what */
         separator = ",-=;#";
@@ -79,7 +75,7 @@ public class NotSoSimpleClient extends JPanel {
 
         System.out.println(inputLine);
 
-        if (data.get("req").equals(reqCodes.NEW_CHAT_CONF.name())) {
+        if (commonconstants.reqCodes.valueOf(data.get("req")) == commonconstants.reqCodes.NEW_CHAT_CONF) {
             /* Server has confirmed new chat */
             currentRoomCode = data.get("code");
 
@@ -184,9 +180,9 @@ public class NotSoSimpleClient extends JPanel {
                         String foundReq = foundData.substring(foundData.indexOf('=')+1);
 
                         try {
-                            dataOut.put("req", reqCodes.valueOf(foundReq).name());
+                            dataOut.put("req", commonconstants.reqCodes.valueOf(foundReq).toString());
                         } catch (IllegalArgumentException e) {
-                            dataOut.put("req", reqCodes.NONE.name());
+                            dataOut.put("req", commonconstants.reqCodes.NONE.toString());
                             catchMessage("Req not found, got: " + foundReq, false);
                         }
                         break;
@@ -200,7 +196,7 @@ public class NotSoSimpleClient extends JPanel {
         return fullMsg.substring(msgStart, msgEnd);
     }
 
-    public void sendMessage(String message) {
+    public void sendMessage(String message, commonconstants.reqCodes req) {
         /* Method for sending a message to the server, including name and displaying on gui */
 
         /* No blank messages */
@@ -210,7 +206,7 @@ public class NotSoSimpleClient extends JPanel {
             Map<String, String> data = new HashMap<String, String>();
             data.put("name", clientName);
             data.put("code", currentRoomCode);
-            data.put("req", reqCodes.NONE.name());
+            data.put("req", req.toString());
 
             String sendMsg = packageData(message, data);
             output.writeUTF(sendMsg);
@@ -229,7 +225,7 @@ public class NotSoSimpleClient extends JPanel {
             Map<String, String> data = new HashMap<String, String>();
             data.put("name", clientName);
             data.put("code", currentRoomCode);
-            data.put("req", reqCodes.NEW_CHAT.name());
+            data.put("req",commonconstants.reqCodes.NEW_CHAT.toString());
 
             String sendMsg = packageData("", data);
             output.writeUTF(sendMsg);
@@ -250,7 +246,7 @@ public class NotSoSimpleClient extends JPanel {
             output = new DataOutputStream(clientSocket.getOutputStream());
             input = new DataInputStream(clientSocket.getInputStream());
 
-            sendMessage("has joined the server");
+            sendMessage("has joined the server", commonconstants.reqCodes.NONE);
 
             connected = true;
 
@@ -297,6 +293,10 @@ public class NotSoSimpleClient extends JPanel {
 
     public void setRoomCode(String roomCode) {
         currentRoomCode = roomCode;
+    }
+
+    public String getRoomCode() {
+        return currentRoomCode;
     }
 
 }

@@ -103,8 +103,14 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                     Map<String, String> receivedData = new HashMap<>();
                     unpackageData(inputLine, receivedData);
 
+                    commonconstants.reqCodes request = commonconstants.reqCodes.valueOf(receivedData.get("request"));
+
+                    switch (request) {
+                        case commonconstants.reqCodes.NEW_CHAT:
+                            
+                    }
                     /* Client has requested a new chat room */
-                    if (receivedData.get("req").equals(reqCodes.NEW_CHAT.name())) {
+                    if (commonconstants.reqCodes.valueOf(receivedData.get("req")) == commonconstants.reqCodes.NEW_CHAT) {
                         createRoom(this);
 
                         /* No message with request, don't resend */
@@ -114,7 +120,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                     /* Resend message to all clients */
                     resendMessage(inputLine);
 
-                    if (receivedData.get("req").equals(reqCodes.LEAVE.name())) {
+                    if (commonconstants.reqCodes.valueOf(receivedData.get("req")) == commonconstants.reqCodes.LEAVE) {
                         //System.out.println(clientName + " has left, client handler shutdown");
                         this.shutdownClient();
                     }
@@ -173,8 +179,6 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                 client.sendToClient(message);
             }
         }
-
-        //addPackagedMessage(message);
     }
 
     public void createRoom(ClientHandler client) {
@@ -185,7 +189,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
         Map<String, String> data = new HashMap<String, String>();
         data.put("name", clientName);
         data.put("code", chatCode);
-        data.put("req", reqCodes.NEW_CHAT_CONF.name());
+        data.put("req",commonconstants.reqCodes.NEW_CHAT_CONF.toString());
 
         String sendMsg = packageData("", data);
         System.out.println(sendMsg);

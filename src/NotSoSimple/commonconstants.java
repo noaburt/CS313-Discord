@@ -7,6 +7,14 @@ public class commonconstants {
 
     public static final int PORT = 4444;
 
+    /* Client request codes */
+    enum reqCodes {
+        NONE,          // SENDING MESSAGE etc.
+        LEAVE,         // LEAVING SERVER
+        NEW_CHAT,      // CREATING GROUP CHAT
+        NEW_CHAT_CONF  // CONFIRMING NEW GC CODE
+    };
+
 
     /* gui theme */
     public static final int THEME_DARK = 1;
