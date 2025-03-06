@@ -70,7 +70,7 @@ public class NotSoSimpleClient extends JPanel {
     /* Add message FROM someone */
     public void addPackagedMessage(String inputLine) {
         /* Method for appending a message to the display, not for sending */
-        Map<String, String> data = new HashMap<>();
+        HashMap<String, String> data = new HashMap<>();
         String toShow = unpackageData(inputLine, data);
 
         System.out.println(inputLine);
@@ -94,7 +94,18 @@ public class NotSoSimpleClient extends JPanel {
         messageArea.append(message + "\n");
     }
 
-    public String packageData(String msg, Map<String, String> data) {
+    public HashMap<String, String> makeData(String name, String code, commonconstants.reqCodes request) {
+        /* Method to create a data hashmap for packaging with messages */
+
+        HashMap<String, String> data = new HashMap<>();
+        data.put("name", name);
+        data.put("code", code);
+        data.put("req", request.toString());
+
+        return data;
+    }
+
+    public String packageData(String msg, HashMap<String, String> data) {
         /* Method for packaging message data with message */
 
         /* FORMAT => [OPENCODE]name=NAME[SEPARATOR]chat=CODE[SEPARATOR]req=CODE[CLOSECODE] [OPENCODE]MESSAGE[CLOSECODE] */
@@ -102,7 +113,7 @@ public class NotSoSimpleClient extends JPanel {
         return openCode + "name=" + data.get("name") + separator + "chat=" + data.get("code") + separator + "req=" + data.get("req") + closeCode + openCode + msg + closeCode;
     }
 
-    public String unpackageData(String fullMsg, Map<String, String> dataOut) {
+    public String unpackageData(String fullMsg, HashMap<String, String> dataOut) {
         /* Method to unpack data from received message, returns message only */
 
         //System.out.println(clientName + " RECEIVED: " + fullMsg);
@@ -203,10 +214,7 @@ public class NotSoSimpleClient extends JPanel {
         if (message.trim().isEmpty()) { return; }
 
         try {
-            Map<String, String> data = new HashMap<String, String>();
-            data.put("name", clientName);
-            data.put("code", currentRoomCode);
-            data.put("req", req.toString());
+            HashMap<String, String> data = makeData(clientName, currentRoomCode, req);
 
             String sendMsg = packageData(message, data);
             output.writeUTF(sendMsg);
@@ -222,10 +230,7 @@ public class NotSoSimpleClient extends JPanel {
         /* Method for requesting a new 'chatroom' from the server */
 
         try {
-            Map<String, String> data = new HashMap<String, String>();
-            data.put("name", clientName);
-            data.put("code", currentRoomCode);
-            data.put("req",commonconstants.reqCodes.NEW_CHAT.toString());
+            HashMap<String, String> data = makeData(clientName, currentRoomCode, commonconstants.reqCodes.NEW_CHAT);
 
             String sendMsg = packageData("", data);
             output.writeUTF(sendMsg);

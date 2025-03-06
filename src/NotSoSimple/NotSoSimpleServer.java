@@ -99,35 +99,44 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                     /* Read input and resend */
                     inputLine = thisInput.readUTF();
 
+                    System.out.println("Server heard: " + inputLine);
                     /* Strip data from received */
-                    Map<String, String> receivedData = new HashMap<>();
+                    HashMap<String, String> receivedData = new HashMap<>();
                     unpackageData(inputLine, receivedData);
 
-                    commonconstants.reqCodes request = commonconstants.reqCodes.valueOf(receivedData.get("request"));
+                    commonconstants.reqCodes request = commonconstants.reqCodes.valueOf(receivedData.get("req"));
 
                     switch (request) {
                         case commonconstants.reqCodes.NEW_CHAT:
+                            /* Client has requested new chat */
+                            createRoom(this);
+                            break;
+
+                        case commonconstants.reqCodes.LEAVE:
+                            /* Resend goodbye message and stop handler */
+                            resendMessage(inputLine);
+                            this.shutdownClient();
+                            break;
+
+                        case commonconstants.reqCodes.NONE:
+                            /* Resent message to all clients as normal */
+                            resendMessage(inputLine);
+                            break;
+
+                        case commonconstants.reqCodes.NEW_CHAT_CONF:
+                            /* Client is not allowed to do this */
+                            throw new IllegalAccessException();
                             
-                    }
-                    /* Client has requested a new chat room */
-                    if (commonconstants.reqCodes.valueOf(receivedData.get("req")) == commonconstants.reqCodes.NEW_CHAT) {
-                        createRoom(this);
-
-                        /* No message with request, don't resend */
-                        continue;
-                    }
-
-                    /* Resend message to all clients */
-                    resendMessage(inputLine);
-
-                    if (commonconstants.reqCodes.valueOf(receivedData.get("req")) == commonconstants.reqCodes.LEAVE) {
-                        //System.out.println(clientName + " has left, client handler shutdown");
-                        this.shutdownClient();
                     }
                 }
             } catch (IOException e) {
                 //e.printStackTrace();
-                catchMessage("Connection closed", false);
+
+                catchMessage("Client disconnected before leaving", false);
+
+            } catch (IllegalAccessException e) {
+                //e.printStackTrace();
+                catchMessage("Client sent NEW_CHAT_CONF, not allowed", true);
 
                 shutdownClient();
             }
@@ -186,10 +195,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
         group g = groups.createGroup();
         String chatCode = g.getGroupCode();
 
-        Map<String, String> data = new HashMap<String, String>();
-        data.put("name", clientName);
-        data.put("code", chatCode);
-        data.put("req",commonconstants.reqCodes.NEW_CHAT_CONF.toString());
+        HashMap<String, String> data = makeData(clientName, chatCode, commonconstants.reqCodes.NEW_CHAT_CONF);
 
         String sendMsg = packageData("", data);
         System.out.println(sendMsg);
