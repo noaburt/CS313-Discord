@@ -253,7 +253,6 @@ public class NotSoSimpleClient extends JPanel {
             sendMessage("has joined the server");
 
             connected = true;
-            enableButtons();
 
         } catch (IOException e) {
             shutdown();
@@ -294,23 +293,6 @@ public class NotSoSimpleClient extends JPanel {
         }
 
         connected = false;
-        disableButtons();
-    }
-
-    public void disableButtons() {
-        /* Method to enable / disable buttons when connection ended */
-
-        messageField.setEditable(false);
-        connectButton.setEnabled(true);
-        shutdownButton.setEnabled(false);
-    }
-
-    public void enableButtons() {
-        /* Method to enable / disable buttons when connection started */
-
-        messageField.setEditable(true);
-        connectButton.setEnabled(false);
-        shutdownButton.setEnabled(true);
     }
 
     public void setRoomCode(String roomCode) {

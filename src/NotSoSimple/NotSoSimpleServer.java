@@ -177,7 +177,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
         addPackagedMessage(message);
     }
 
-    public void createRoom(ClientHandler client) { //------------------------------------------ PLACEHOLDER
+    public void createRoom(ClientHandler client) {
         /* Method for creating a new chat room */
         group g = groups.createGroup();
         String chatCode = g.getGroupCode();
