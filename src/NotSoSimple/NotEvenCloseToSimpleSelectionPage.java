@@ -65,14 +65,10 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
 
                          */
 
-                        // -------------------------------------------------------------------------------------------------------- CONCURENCY ERROR HERE YIPPEE
                         System.out.println("Code before is: " + client.getRoomCode());
 
                         client.requestChat();
 
-                        System.out.println("Code after is: " + client.getRoomCode());
-
-                        System.out.println("Code after the after is: " + client.getRoomCode());
 
 
                         client.messageArea.setText("");

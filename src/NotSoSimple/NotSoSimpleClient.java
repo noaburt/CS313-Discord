@@ -40,6 +40,8 @@ public class NotSoSimpleClient extends JPanel {
     private final String closeCode;
     private final int codesLen;
 
+    public boolean waitingForResponse;
+
     public NotSoSimpleClient(int port, String thisName) {
         /* Setup window when client instance is created */
 
@@ -59,6 +61,8 @@ public class NotSoSimpleClient extends JPanel {
         closeCode = "!}*']";
 
         codesLen = openCode.length(); // All same length
+
+        waitingForResponse = false;
     }
 
     public void catchMessage(String message, boolean error) {
@@ -78,6 +82,7 @@ public class NotSoSimpleClient extends JPanel {
         if (commonconstants.reqCodes.valueOf(data.get("req")) == commonconstants.reqCodes.NEW_CHAT_CONF) {
             /* Server has confirmed new chat */
             this.currentRoomCode = data.get("code");
+            waitingForResponse = false;
 
             System.out.println("Client joined new chat room: " + this.currentRoomCode);
 
@@ -234,6 +239,8 @@ public class NotSoSimpleClient extends JPanel {
 
             String sendMsg = packageData("", data);
             output.writeUTF(sendMsg);
+
+            waitingForResponse = true;
         } catch (IOException e) {
             addMessage("Error: Failed to request new chat\n(" + e.getMessage() + ")");
 
