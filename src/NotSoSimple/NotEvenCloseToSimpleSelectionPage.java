@@ -78,6 +78,7 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
                          *
                          * ADDING FLAG TO CLIENT waitingForResponse
                          * PAGE WAITS UNTIL CLIENT HAS GOT NEW CODE FROM SERVER
+                         * PRINT("") SAVES THE DAY
                          */
 
                         client.messageArea.setText("");
