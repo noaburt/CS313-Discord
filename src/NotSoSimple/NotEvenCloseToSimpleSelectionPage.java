@@ -67,12 +67,22 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
 
                         System.out.println("Code before is: " + client.getRoomCode());
 
+                        new Thread(new Runnable() {
+                            public void run() {
+                                client.listening();
+                            }
+                        }).start();
+
                         client.requestChat();
 
-
+                        do {
+                            // FIXED???
+                            System.out.print("");
+                        } while (client.getRoomCode().equals("WAITING"));
 
                         client.messageArea.setText("");
                         client.messageField.setText("");
+
                         new simpleChatRoom(client,0 , client.getRoomCode()).setVisible(true);
                         NotEvenCloseToSimpleSelectionPage.this.dispose();
                     }

@@ -99,7 +99,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                     /* Read input and resend */
                     inputLine = thisInput.readUTF();
 
-                    System.out.println("Server heard: " + inputLine);
+                    //System.out.println("Server heard: " + inputLine);
                     /* Strip data from received */
                     HashMap<String, String> receivedData = new HashMap<>();
                     unpackageData(inputLine, receivedData);
@@ -198,7 +198,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
         HashMap<String, String> data = makeData(clientName, chatCode, commonconstants.reqCodes.NEW_CHAT_CONF);
 
         String sendMsg = packageData("", data);
-        System.out.println(sendMsg);
+        //System.out.println(sendMsg);
         client.sendToClient(sendMsg);
     }
 

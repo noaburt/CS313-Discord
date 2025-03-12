@@ -14,6 +14,7 @@ public class simpleChatRoom extends form{
 
         /* set title bar */
         super("Chat Room", client, 2);
+        System.out.println("Simple Chat Room");
         this.code = code;
         this.addGuiDesign();
     }
@@ -70,13 +71,6 @@ public class simpleChatRoom extends form{
             }
         });
 
-        /* add components to NotSoSimple.form */
-
-        new Thread(new Runnable() {
-            public void run() {
-                client.listening();
-            }
-        }).start();
 
         addComponents();
     }
