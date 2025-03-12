@@ -84,7 +84,10 @@ public class NotSoSimpleClient extends JPanel {
             return;
         }
 
-        messageArea.append(data.get("name") + ": " + toShow + "\n");
+        /* Only show if in chat room */
+        if (data.get("code").equals(currentRoomCode)) {
+            messageArea.append(data.get("name") + ": " + toShow + "\n");
+        }
     }
 
     /* Add message for this user only */
