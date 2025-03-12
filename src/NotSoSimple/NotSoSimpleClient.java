@@ -253,8 +253,6 @@ public class NotSoSimpleClient extends JPanel {
             output = new DataOutputStream(clientSocket.getOutputStream());
             input = new DataInputStream(clientSocket.getInputStream());
 
-            sendMessage("has joined the server", commonconstants.reqCodes.NONE);
-
             connected = true;
 
         } catch (IOException e) {

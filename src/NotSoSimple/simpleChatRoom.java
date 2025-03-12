@@ -14,7 +14,6 @@ public class simpleChatRoom extends form{
 
         /* set title bar */
         super("Chat Room", client, 2);
-        System.out.println("Simple Chat Room");
         this.code = code;
         this.addGuiDesign();
     }
