@@ -74,6 +74,11 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
 
                         System.out.println("Code after the after is: " + client.getRoomCode());
 
+                        /* FIXED BY:
+                         *
+                         * ADDING FLAG TO CLIENT waitingForResponse
+                         * PAGE WAITS UNTIL CLIENT HAS GOT NEW CODE FROM SERVER
+                         */
 
                         client.messageArea.setText("");
                         client.messageField.setText("");
