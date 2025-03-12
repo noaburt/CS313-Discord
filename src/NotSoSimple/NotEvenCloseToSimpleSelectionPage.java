@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import static java.lang.Thread.sleep;
+
 public class NotEvenCloseToSimpleSelectionPage extends form{
 
     public NotEvenCloseToSimpleSelectionPage(NotSoSimpleClient client, int err) {
@@ -62,7 +64,16 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
                             creates a new chat with unique code check for a unique code then show chat page
 
                          */
+
+                        // -------------------------------------------------------------------------------------------------------- CONCURENCY ERROR HERE YIPPEE
+                        System.out.println("Code before is: " + client.getRoomCode());
+
                         client.requestChat();
+
+                        System.out.println("Code after is: " + client.getRoomCode());
+
+                        System.out.println("Code after the after is: " + client.getRoomCode());
+
 
                         client.messageArea.setText("");
                         client.messageField.setText("");

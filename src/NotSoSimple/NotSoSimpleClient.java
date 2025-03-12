@@ -77,9 +77,9 @@ public class NotSoSimpleClient extends JPanel {
 
         if (commonconstants.reqCodes.valueOf(data.get("req")) == commonconstants.reqCodes.NEW_CHAT_CONF) {
             /* Server has confirmed new chat */
-            currentRoomCode = data.get("code");
+            this.currentRoomCode = data.get("code");
 
-            System.out.println("Client joined new chat room: " + currentRoomCode);
+            System.out.println("Client joined new chat room: " + this.currentRoomCode);
 
             return;
         }
@@ -297,11 +297,11 @@ public class NotSoSimpleClient extends JPanel {
     }
 
     public void setRoomCode(String roomCode) {
-        currentRoomCode = roomCode;
+        this.currentRoomCode = roomCode;
     }
 
     public String getRoomCode() {
-        return currentRoomCode;
+        return this.currentRoomCode;
     }
 
 }
