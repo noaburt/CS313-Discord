@@ -5,9 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 
 /*
@@ -108,7 +106,33 @@ public class SimpleClient extends JPanel {
         uploadButton = new JButton("Upload");
         uploadButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                /* Method for choosing and uploading a file to the server */
+                JFileChooser fileChooser = new JFileChooser();
+                int returnValue = fileChooser.showOpenDialog(SimpleClient.this);
 
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+
+                    /* Method to send file to the server */
+                    try {
+                        FileInputStream fileInputStream = new FileInputStream(selectedFile);
+                        byte[] buffer = new byte[4096];
+                        int bytesRead;
+
+                        // Inform server about the file
+                        output.writeUTF("file:" + selectedFile.getName() + ":" + selectedFile.length());
+
+                        // Send the file content
+                        while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                            output.write(buffer, 0, bytesRead);
+                        }
+
+                        fileInputStream.close();
+                        addMessage("Uploaded file: " + selectedFile.getName());
+                    } catch (IOException ex) {
+                        addMessage("Error: Failed to upload file '" + selectedFile.getName() + "'\n(" + ex.getMessage() + ")");
+                    }
+                }
             }
         });
 
