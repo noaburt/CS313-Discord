@@ -104,9 +104,19 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
                             invalid = false;
                             // do validation
                         }
+
+                        /* Join chat room, start listening */
+
+                        new Thread(new Runnable() {
+                            public void run() {
+                                client.listening();
+                            }
+                        }).start();
+
                         client.setRoomCode(code);
                         client.messageArea.setText("");
                         client.messageField.setText("");
+
                         new simpleChatRoom(client,0 , code).setVisible(true);
                         NotEvenCloseToSimpleSelectionPage.this.dispose();
 
