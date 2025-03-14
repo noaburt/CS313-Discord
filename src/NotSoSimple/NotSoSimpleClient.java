@@ -40,6 +40,8 @@ public class NotSoSimpleClient extends JPanel {
     private final String closeCode;
     private final int codesLen;
 
+    public boolean isListening;
+
     public NotSoSimpleClient(int port, String thisName) {
         /* Setup window when client instance is created */
 
@@ -47,6 +49,7 @@ public class NotSoSimpleClient extends JPanel {
         clientName = thisName;
         currentRoomCode = "";
         connected = false;
+        isListening = false;
 
         messageArea = new JTextArea();
         messageField = new JTextField();
@@ -269,7 +272,12 @@ public class NotSoSimpleClient extends JPanel {
     public void listening() {
         /* Method that runs to listen for messages */
 
+        /* Stop if already listening */
+        if (isListening) { return; }
+
         try {
+            isListening = true;
+
             while (true) {
                 /* Constantly read for messages and show */
                 String inputLine = input.readUTF();
@@ -290,6 +298,7 @@ public class NotSoSimpleClient extends JPanel {
 
         try {
             clientSocket.close();
+            isListening = false;
         } catch (IOException e) {
             addMessage("Error: Failed to leave server\n(" + e.getMessage() + ")");
 

@@ -16,6 +16,12 @@ public class simpleChatRoom extends form{
         super("Chat Room", client, 2);
         this.code = code;
         this.addGuiDesign();
+
+        new Thread(new Runnable() {
+            public void run() {
+                client.listening();
+            }
+        }).start();
     }
 
     /* add gui components to the NotSoSimple.form */

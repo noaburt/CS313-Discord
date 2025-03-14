@@ -47,6 +47,7 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
                          */
                         String code = "GLOBAL";
                         client.setRoomCode(code);
+
                         client.messageArea.setText("");
                         client.messageField.setText("");
                         new simpleChatRoom(client,0 , code).setVisible(true);
@@ -105,13 +106,7 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
                             // do validation
                         }
 
-                        /* Join chat room, start listening */
-
-                        new Thread(new Runnable() {
-                            public void run() {
-                                client.listening();
-                            }
-                        }).start();
+                        /* Join chat room */
 
                         client.setRoomCode(code);
                         client.messageArea.setText("");
