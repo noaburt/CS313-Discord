@@ -87,6 +87,11 @@ public class NotSoSimpleClient extends JPanel {
             return;
         }
 
+        if(commonconstants.reqCodes.valueOf(data.get("req")) == commonconstants.reqCodes.EXISTING_CHAT) {
+            this.currentRoomCode = data.get("code");
+            return;
+        }
+
         /* Only show if in chat room */
         System.out.println(data.get("code") + " sent to " + clientName);
         if (data.get("code").equals(currentRoomCode)) {
@@ -248,6 +253,23 @@ public class NotSoSimpleClient extends JPanel {
 
             //e.printStackTrace();
             catchMessage("Sending chat request from client [" + e.getMessage() + "] to server [" + serverPort + "]", true);
+        }
+    }
+
+    public void checkRoomExists(String roomCode) {
+        try {
+            currentRoomCode = roomCode;
+            HashMap<String, String> data = makeData(clientName, currentRoomCode, commonconstants.reqCodes.EXISTING_CHAT);
+
+            String sendMsg = packageData("", data);
+            output.writeUTF(sendMsg);
+            currentRoomCode = "WAITING";
+
+        } catch (IOException e) {
+            addMessage("Error: Failed to check if chat exists\n(" + e.getMessage() + ")");
+
+            //e.printStackTrace();
+            catchMessage("Sending chat check request from client [" + e.getMessage() + "] to server [" + serverPort + "]", true);
         }
     }
 

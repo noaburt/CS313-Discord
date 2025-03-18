@@ -66,7 +66,7 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
 
                          */
 
-                        System.out.println("Code before is: " + client.getRoomCode());
+                        //System.out.println("Code before is: " + client.getRoomCode());
 
                         new Thread(new Runnable() {
                             public void run() {
@@ -78,6 +78,7 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
 
                         do {
                             // FIXED???
+
                             System.out.print("");
                         } while (client.getRoomCode().equals("WAITING"));
 
@@ -99,22 +100,33 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
 
                          */
                         String code = "";
+                        new Thread(new Runnable() {
+                            public void run() {
+                                client.listening();
+                            }
+                        }).start();
                         boolean invalid = true;
-                        while (invalid) {
                             code = JOptionPane.showInputDialog("Enter Server Code");
-                            invalid = false;
-                            // do validation
+                            client.checkRoomExists(code);
+                            do {
+                                System.out.print("");
+                            } while (client.getRoomCode().equals("WAITING"));
+                            if (client.getRoomCode().equals(code)) {
+                                invalid = false;
+
                         }
+                        if(invalid) {
+                            JOptionPane.showMessageDialog(null, "Invalid Server Code");
+                        }else {
+                            /* Join chat room */
 
-                        /* Join chat room */
+                            client.setRoomCode(code);
+                            client.messageArea.setText("");
+                            client.messageField.setText("");
 
-                        client.setRoomCode(code);
-                        client.messageArea.setText("");
-                        client.messageField.setText("");
-
-                        new simpleChatRoom(client,0 , code).setVisible(true);
-                        NotEvenCloseToSimpleSelectionPage.this.dispose();
-
+                            new simpleChatRoom(client, 0, code).setVisible(true);
+                            NotEvenCloseToSimpleSelectionPage.this.dispose();
+                        }
                     }
                 }
         );

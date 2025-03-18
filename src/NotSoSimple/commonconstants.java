@@ -12,7 +12,8 @@ public class commonconstants {
         NONE,          // SENDING MESSAGE etc.
         LEAVE,         // LEAVING SERVER
         NEW_CHAT,      // CREATING GROUP CHAT
-        NEW_CHAT_CONF  // CONFIRMING NEW GC CODE
+        NEW_CHAT_CONF,  // CONFIRMING NEW GC CODE
+        EXISTING_CHAT // CONFIRMING CHAT EXISTS
     };
 
 

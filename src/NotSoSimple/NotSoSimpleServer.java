@@ -126,7 +126,16 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                         case commonconstants.reqCodes.NEW_CHAT_CONF:
                             /* Client is not allowed to do this */
                             throw new IllegalAccessException();
-                            
+
+                        case commonconstants.reqCodes.EXISTING_CHAT:
+                            group g = groups.getGroup(receivedData.get("code"));
+                            String chatCode = (g != null) ? receivedData.get("code") : "F";
+
+                            HashMap<String, String> data = makeData(clientName, chatCode, commonconstants.reqCodes.EXISTING_CHAT);
+
+                            String sendMsg = packageData("", data);
+
+                            sendToClient(sendMsg);
                     }
                 }
             } catch (IOException e) {
