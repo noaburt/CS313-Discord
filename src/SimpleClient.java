@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -35,7 +34,7 @@ public class SimpleClient extends JPanel {
     public DataInputStream input;
     private DataOutputStream output;
 
-    public JTextArea messageArea;
+    public JPanel messagePanel; // Panel to hold messages
     public JTextField messageField;
     public JButton shutdownButton;
     public JButton connectButton;
@@ -43,7 +42,6 @@ public class SimpleClient extends JPanel {
 
     public SimpleClient(int port, String thisName) {
         /* Setup window when client instance is created */
-
         serverPort = port;
         clientName = thisName;
 
@@ -58,22 +56,18 @@ public class SimpleClient extends JPanel {
 
     public void addTextBoxes() {
         /* Method for adding only required text boxes to window */
+        messagePanel = new JPanel();
+        messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.Y_AXIS));
 
-        messageArea = new JTextArea(10, 20);
-        messageArea.setEditable(false);
-
-        messageField = new JTextField(10);
-        messageField.setEditable(false);
-
-
-
-        /* Keep scroll always showing the newest messages */
-        JScrollPane scrollPane = new JScrollPane(messageArea);
+        JScrollPane scrollPane = new JScrollPane(messagePanel);
         scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
             public void adjustmentValueChanged(AdjustmentEvent e) {
                 e.getAdjustable().setValue(e.getAdjustable().getMaximum());
             }
         });
+
+        messageField = new JTextField(10);
+        messageField.setEditable(false);
 
         add(scrollPane);
         add(messageField, BorderLayout.NORTH);
@@ -81,7 +75,6 @@ public class SimpleClient extends JPanel {
 
     public JPanel makePanel() {
         /* Method for adding only required buttons to window */
-
         JPanel panel = new JPanel();
 
         shutdownButton = new JButton("Leave Server");
@@ -144,36 +137,44 @@ public class SimpleClient extends JPanel {
 
     public void catchMessage(String message, boolean error) {
         /* Nice way of clarifying errors from try-catch blocks */
-
         System.out.println((error ? "Error: " : "Caught: ") + message);
     }
 
     public void addMessage(String message) {
         /* Method for appending a message to the display, not for sending */
+        JLabel messageLabel = new JLabel(message);
+        messagePanel.add(messageLabel);
+        messagePanel.revalidate();
+        messagePanel.repaint();
+    }
 
-        messageArea.append(message + "\n");
+    public void displayImage(String imagePath) {
+        /* Method to display an image in the message area */
+        ImageIcon imageIcon = new ImageIcon(imagePath);
+        JLabel imageLabel = new JLabel(imageIcon);
+        messagePanel.add(imageLabel);
+        messagePanel.revalidate();
+        messagePanel.repaint();
     }
 
     public void sendMessage(String message) {
         /* Method for sending a message to the server, including name and displaying on gui */
-
         /* No blank messages */
-        if (message.trim().isEmpty()) { return; }
+        if (message.trim().isEmpty()) {
+            return;
+        }
 
         try {
             String sendMsg = clientName + ": " + message;
             output.writeUTF(sendMsg);
         } catch (IOException e) {
             addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
-
-            //e.printStackTrace();
             catchMessage("Sending message from client [" + e.getMessage() + "] to server [" + serverPort + "]", true);
         }
     }
 
     public void connect() {
         /* Method to attempt to connect to server */
-
         addMessage("Connecting to server...");
 
         try {
@@ -182,7 +183,7 @@ public class SimpleClient extends JPanel {
             output = new DataOutputStream(clientSocket.getOutputStream());
             input = new DataInputStream(clientSocket.getInputStream());
 
-            /* First message is always client data -------------------------------------MIGHT NOT NEED KEEP FOR NOW */
+            /* First message is always client data */
             output.writeUTF("{;" + clientName + ";}");
 
             sendMessage("has joined the server\n");
@@ -190,7 +191,6 @@ public class SimpleClient extends JPanel {
         } catch (IOException e) {
             addMessage("No server found @ localhost:" + serverPort + "\n");
             shutdown();
-
             catchMessage("Didn't find server", false);
             return;
         }
@@ -212,36 +212,36 @@ public class SimpleClient extends JPanel {
                 /* Constantly read for messages and show */
                 String inputLine = input.readUTF();
 
-                addMessage(inputLine);
+                // Check if the line contains "A file has been uploaded"
+                if (inputLine.startsWith("A file has been uploaded: ")) {
+                    String fileName = inputLine.substring("A file has been uploaded: ".length());
+                    displayImage("uploads/" + fileName);
+                } else {
+                    addMessage(inputLine);
+                }
             }
         } catch (IOException e) {
             /* Client has left server or server has closed */
             addMessage("Leaving server, goodbye...\n");
             shutdown();
-
             catchMessage("Client left server", false);
         }
     }
 
     public void shutdown() {
         /* Method for completing all steps for disconnecting client */
-
         try {
             clientSocket.close();
         } catch (IOException e) {
             addMessage("Error: Failed to leave server\n(" + e.getMessage() + ")");
-
-            //e.printStackTrace();
             catchMessage("Failed to close client socket [" + e.getMessage() + "]", true);
         }
 
-        //checkShutdown();
         disableButtons();
     }
 
     public void checkShutdown() {
         /* Method to check if client has already shutdown */
-
         if (!EventQueue.isDispatchThread()) {
             EventQueue.invokeLater(new Runnable() {
                 @Override
@@ -251,13 +251,11 @@ public class SimpleClient extends JPanel {
             });
             return;
         }
-
         disableButtons();
     }
 
     public void disableButtons() {
         /* Method to enable / disable buttons when connection ended */
-
         messageField.setEditable(false);
         connectButton.setEnabled(true);
         shutdownButton.setEnabled(false);
@@ -266,7 +264,6 @@ public class SimpleClient extends JPanel {
 
     public void enableButtons() {
         /* Method to enable / disable buttons when connection started */
-
         messageField.setEditable(true);
         connectButton.setEnabled(false);
         shutdownButton.setEnabled(true);
