@@ -42,10 +42,10 @@ public class SimpleServer extends SimpleClient {
 
     public ServerSocket serverSocket;
     public ArrayList<ClientHandler> clients;
+    public JPanel messagePanel; // Panel to hold messages
 
     public SimpleServer(int port) {
         super(port, "Server");
-
         clients = new ArrayList<>();
     }
 
@@ -53,11 +53,10 @@ public class SimpleServer extends SimpleClient {
     public void addTextBoxes() {
         /* Method for adding only required text boxes to server window */
 
-        messageArea = new JTextArea(10, 20);
-        messageArea.setEditable(false);
+        messagePanel = new JPanel();
+        messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.Y_AXIS));
 
-        /* Keep scroll always showing the newest messages */
-        JScrollPane scrollPane = new JScrollPane(messageArea);
+        JScrollPane scrollPane = new JScrollPane(messagePanel);
         scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
             public void adjustmentValueChanged(AdjustmentEvent e) {
                 e.getAdjustable().setValue(e.getAdjustable().getMaximum());
@@ -175,7 +174,7 @@ public class SimpleServer extends SimpleClient {
                             long remaining = fileLength;
 
                             // Read and save the file
-                            while (remaining > 0 && (bytesRead = thisInput.read(buffer, 0, (int)Math.min(buffer.length, remaining))) != -1) {
+                            while (remaining > 0 && (bytesRead = thisInput.read(buffer, 0, (int) Math.min(buffer.length, remaining))) != -1) {
                                 fileOutputStream.write(buffer, 0, bytesRead);
                                 remaining -= bytesRead;
                             }
@@ -227,7 +226,6 @@ public class SimpleServer extends SimpleClient {
         public void checkStartServer() {
             /* Check if a server is already started, make button inactive */
 
-
             if (!EventQueue.isDispatchThread()) {
                 EventQueue.invokeLater(new Runnable() {
                     @Override
@@ -238,10 +236,7 @@ public class SimpleServer extends SimpleClient {
                 return;
             }
 
-
             enableButtons();
-
-
         }
     }
 
@@ -267,11 +262,11 @@ public class SimpleServer extends SimpleClient {
 
             for (ClientHandler client : clients) {
                 if (!client.closed) {
-                    client.thisOutput.writeUTF(message);
+                    client.thisOutput.writeUTF(sendMsg);
                 }
             }
 
-            messageArea.append(sendMsg + "\n");
+            addMessage(sendMsg);
         } catch (IOException e) {
             addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
             catchMessage("Sending message from server [" + e.getMessage() + "]", true);
@@ -287,7 +282,7 @@ public class SimpleServer extends SimpleClient {
                 }
             }
 
-            messageArea.append(message + "\n");
+            addMessage(message);
         } catch (IOException e) {
             addMessage("Error: Failed to resend message '" + message + "'\n(" + e.getMessage() + ")");
             catchMessage("Resending message to clients [" + e.getMessage() + "]", true);
@@ -318,5 +313,13 @@ public class SimpleServer extends SimpleClient {
 
         addMessage("Server stopped\n");
         disableButtons();
+    }
+
+    // New method to display messages in messagePanel
+    public void addMessage(String message) {
+        JLabel messageLabel = new JLabel(message);
+        messagePanel.add(messageLabel);
+        messagePanel.revalidate();
+        messagePanel.repaint();
     }
 }
