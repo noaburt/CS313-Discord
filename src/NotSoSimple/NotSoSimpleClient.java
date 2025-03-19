@@ -257,20 +257,10 @@ public class NotSoSimpleClient extends JPanel {
     }
 
     public void checkRoomExists(String roomCode) {
-        try {
-            currentRoomCode = roomCode;
-            HashMap<String, String> data = makeData(clientName, currentRoomCode, commonconstants.reqCodes.EXISTING_CHAT);
+        currentRoomCode = roomCode;
 
-            String sendMsg = packageData("", data);
-            output.writeUTF(sendMsg);
-            currentRoomCode = "WAITING";
-
-        } catch (IOException e) {
-            addMessage("Error: Failed to check if chat exists\n(" + e.getMessage() + ")");
-
-            //e.printStackTrace();
-            catchMessage("Sending chat check request from client [" + e.getMessage() + "] to server [" + serverPort + "]", true);
-        }
+        sendMessage("", commonconstants.reqCodes.EXISTING_CHAT);
+        currentRoomCode = "WAITING";
     }
 
     public void connect() {

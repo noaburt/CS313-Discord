@@ -105,19 +105,32 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
                                 client.listening();
                             }
                         }).start();
-                        boolean invalid = true;
-                            code = JOptionPane.showInputDialog("Enter Server Code");
-                            client.checkRoomExists(code);
-                            do {
-                                System.out.print("");
-                            } while (client.getRoomCode().equals("WAITING"));
-                            if (client.getRoomCode().equals(code)) {
-                                invalid = false;
 
+                        int invalid = 0; // no value = 0, invalid = 1, valid = 2
+                        while (invalid == 0) {
+                            code = JOptionPane.showInputDialog("Enter Server Code");
+
+                            if (code == null) {
+                                return;
+                            }
+
+                            if (!code.isEmpty()) {
+                                invalid = 1;
+                            }
                         }
-                        if(invalid) {
+
+                        client.checkRoomExists(code);
+                        do {
+                            System.out.print("");
+                        } while (client.getRoomCode().equals("WAITING"));
+
+                        if (client.getRoomCode().equals(code)) {
+                            invalid = 2;
+                        }
+
+                        if(invalid == 1) {
                             JOptionPane.showMessageDialog(null, "Invalid Server Code");
-                        }else {
+                        } else {
                             /* Join chat room */
 
                             client.setRoomCode(code);
