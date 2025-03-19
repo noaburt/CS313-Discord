@@ -19,6 +19,7 @@ public class SimpleGui {
             public void run() {
                 JFrame clientFrame = new JFrame("Discord");
                 clientFrame.add(guiPanel);
+                clientFrame.setPreferredSize(new java.awt.Dimension(400, 300));
                 clientFrame.pack();
                 clientFrame.setLocationRelativeTo(null);
                 clientFrame.setVisible(true);
