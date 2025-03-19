@@ -2,6 +2,8 @@ package NotSoSimple;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 
 public class commonconstants {
 
@@ -177,6 +179,12 @@ public class commonconstants {
     public static JScrollPane makeScroller(int guiTheme, int x, int y, int width, int height, JComponent contents) {
         JScrollPane listScroller = new JScrollPane( contents );
         listScroller.setBounds(x, y, width, height);
+
+        listScroller.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+            }
+        });
 
         return listScroller;
     }

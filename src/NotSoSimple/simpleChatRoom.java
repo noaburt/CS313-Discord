@@ -1,10 +1,7 @@
 package NotSoSimple;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 
 public class simpleChatRoom extends form{
 
@@ -39,6 +36,7 @@ public class simpleChatRoom extends form{
 
         componentList.put("Messages", commonconstants.makeScroller(0, formColumns[0], getRowPosition(0) + (commonconstants.FIELD_DIST/2), this.getWidth() - (formColumns[0]*2), 200, messages));
         componentList.put("Message", commonconstants.makeScroller(0, formColumns[0], getRowPosition(0) + (commonconstants.FIELD_DIST/2) + 200, this.getWidth() - (formColumns[0]*2), 20, message));
+
 
         client.messageArea = messages;
         client.messageField = message;

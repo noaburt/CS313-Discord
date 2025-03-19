@@ -76,7 +76,7 @@ public class NotSoSimpleClient extends JPanel {
         HashMap<String, String> data = new HashMap<>();
         String toShow = unpackageData(inputLine, data);
 
-        System.out.println(inputLine);
+        //System.out.println(inputLine);
 
         if (commonconstants.reqCodes.valueOf(data.get("req")) == commonconstants.reqCodes.NEW_CHAT_CONF) {
             /* Server has confirmed new chat */
@@ -93,7 +93,7 @@ public class NotSoSimpleClient extends JPanel {
         }
 
         /* Only show if in chat room */
-        System.out.println(data.get("code") + " sent to " + clientName);
+        //System.out.println(data.get("code") + " sent to " + clientName);
         if (data.get("code").equals(currentRoomCode)) {
             messageArea.append(data.get("name") + ": " + toShow + "\n");
         }
@@ -229,6 +229,7 @@ public class NotSoSimpleClient extends JPanel {
             HashMap<String, String> data = makeData(clientName, currentRoomCode, request);
 
             String sendMsg = packageData(message, data);
+            System.out.println(sendMsg);
             output.writeUTF(sendMsg);
         } catch (IOException e) {
             addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");

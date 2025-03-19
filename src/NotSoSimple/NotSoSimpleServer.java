@@ -192,7 +192,9 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
     public void resendMessage(String message) {
         /* Method for sending the already packaged message back to all clients */
 
-        for (ClientHandler client : clients) {
+        ArrayList<ClientHandler> oldClient = new ArrayList<>(clients);
+
+        for (ClientHandler client : oldClient) {
             if (!client.closed) {
                 client.sendToClient(message);
             }
