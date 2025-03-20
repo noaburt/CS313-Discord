@@ -109,6 +109,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                     group G;
                     HashMap<String, String> data;
                     String sendMsg;
+
                     switch (request) {
                         case commonconstants.reqCodes.NEW_CHAT:
                             /* Client has requested new chat */
@@ -123,6 +124,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
 
                         case commonconstants.reqCodes.NONE:
                             /* Resent message to all clients as normal */
+
                             G = groups.getGroup(receivedData.get("code"));
                             data = new HashMap<>();
                             String toShow = unpackageData(inputLine, data);
@@ -150,6 +152,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                             }
                             data = makeData(clientName, receivedData.get("code"), commonconstants.reqCodes.CHAT_HISTORY);
                             sendMsg = packageData(loggedChats.toString(), data);
+                            //System.out.println("Logged chats: " + loggedChats.toString());
                             sendToClient(sendMsg);
                             break;
 

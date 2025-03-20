@@ -75,6 +75,7 @@ public class NotSoSimpleClient extends JPanel {
         /* Method for appending a message to the display, not for sending */
         HashMap<String, String> data = new HashMap<>();
         String toShow = unpackageData(inputLine, data);
+        System.out.println(inputLine);
 
         if (commonconstants.reqCodes.valueOf(data.get("req")) == commonconstants.reqCodes.NEW_CHAT_CONF) {
             /* Server has confirmed new chat */
@@ -97,7 +98,12 @@ public class NotSoSimpleClient extends JPanel {
         /* Only show if in chat room */
         //System.out.println(data.get("code") + " sent to " + clientName);
         if (data.get("code").equals(currentRoomCode)) {
-            messageArea.append(data.get("name") + ": " + toShow + "\n");
+            if(!data.get("name").equals("Server")){
+                messageArea.append(data.get("name") + ": " + toShow + "\n");
+            }else{
+                messageArea.append(toShow);
+            }
+
         }
     }
 
