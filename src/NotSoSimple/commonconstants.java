@@ -15,7 +15,8 @@ public class commonconstants {
         LEAVE,         // LEAVING SERVER
         NEW_CHAT,      // CREATING GROUP CHAT
         NEW_CHAT_CONF,  // CONFIRMING NEW GC CODE
-        EXISTING_CHAT // CONFIRMING CHAT EXISTS
+        EXISTING_CHAT, // CONFIRMING CHAT EXISTS
+        CHAT_HISTORY // GETTING LOGGED MESSAGES
     };
 
 
@@ -180,11 +181,11 @@ public class commonconstants {
         JScrollPane listScroller = new JScrollPane( contents );
         listScroller.setBounds(x, y, width, height);
 
-        listScroller.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+        /*listScroller.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
             public void adjustmentValueChanged(AdjustmentEvent e) {
                 e.getAdjustable().setValue(e.getAdjustable().getMaximum());
             }
-        });
+        });*/
 
         return listScroller;
     }

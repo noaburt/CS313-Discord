@@ -12,9 +12,8 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
 
         /* set title bar */
         super("Home", client, 2);
-
-
         this.addGuiDesign();
+
     }
 
     /* add gui components to the NotSoSimple.form */
@@ -132,10 +131,9 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
                             JOptionPane.showMessageDialog(null, "Invalid Server Code");
                         } else {
                             /* Join chat room */
-
-                            client.setRoomCode(code);
                             client.messageArea.setText("");
                             client.messageField.setText("");
+                            client.setRoomCode("WAITING");
 
                             new simpleChatRoom(client, 0, code).setVisible(true);
                             NotEvenCloseToSimpleSelectionPage.this.dispose();

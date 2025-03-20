@@ -16,7 +16,7 @@ public class clientStarterRun {
                 }).start();
 
                 new NotSoSimpleClientLoginPage(null, 0).setVisible(true);
-                //new NotSoSimpleClientLoginPage(null, 0).setVisible(true);
+                new NotSoSimpleClientLoginPage(null, 0).setVisible(true);
                 //new NotSoSimpleClientLoginPage(null, 0).setVisible(true);
             }
         });

@@ -40,6 +40,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
         super(port, "Server");
 
         clients = new ArrayList<>();
+        groups.addGroup(new group("GLOBAL"));
     }
 
     @Override
@@ -105,7 +106,9 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                     unpackageData(inputLine, receivedData);
 
                     commonconstants.reqCodes request = commonconstants.reqCodes.valueOf(receivedData.get("req"));
-
+                    group G;
+                    HashMap<String, String> data;
+                    String sendMsg;
                     switch (request) {
                         case commonconstants.reqCodes.NEW_CHAT:
                             /* Client has requested new chat */
@@ -120,6 +123,10 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
 
                         case commonconstants.reqCodes.NONE:
                             /* Resent message to all clients as normal */
+                            G = groups.getGroup(receivedData.get("code"));
+                            data = new HashMap<>();
+                            String toShow = unpackageData(inputLine, data);
+                            G.addMessage(data.get("name") + ": " + toShow);
                             resendMessage(inputLine);
                             break;
 
@@ -128,14 +135,23 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                             throw new IllegalAccessException();
 
                         case commonconstants.reqCodes.EXISTING_CHAT:
-                            group g = groups.getGroup(receivedData.get("code"));
-                            String chatCode = (g != null) ? receivedData.get("code") : "F";
-
-                            HashMap<String, String> data = makeData(clientName, chatCode, commonconstants.reqCodes.EXISTING_CHAT);
-
-                            String sendMsg = packageData("", data);
-
+                            G = groups.getGroup(receivedData.get("code"));
+                            String chatCode = (G != null) ? receivedData.get("code") : "F";
+                            data = makeData(clientName, chatCode, commonconstants.reqCodes.EXISTING_CHAT);
+                            sendMsg = packageData("", data);
                             sendToClient(sendMsg);
+                            break;
+
+                        case commonconstants.reqCodes.CHAT_HISTORY:
+                            G = groups.getGroup(receivedData.get("code"));
+                            StringBuilder loggedChats = new StringBuilder();
+                            for(String s:G.getMessages()){
+                                loggedChats.append(s).append("\n");
+                            }
+                            data = makeData(clientName, receivedData.get("code"), commonconstants.reqCodes.CHAT_HISTORY);
+                            sendMsg = packageData(loggedChats.toString(), data);
+                            sendToClient(sendMsg);
+
                     }
                 }
             } catch (IOException e) {

@@ -76,8 +76,6 @@ public class NotSoSimpleClient extends JPanel {
         HashMap<String, String> data = new HashMap<>();
         String toShow = unpackageData(inputLine, data);
 
-        //System.out.println(inputLine);
-
         if (commonconstants.reqCodes.valueOf(data.get("req")) == commonconstants.reqCodes.NEW_CHAT_CONF) {
             /* Server has confirmed new chat */
             this.currentRoomCode = data.get("code");
@@ -90,6 +88,10 @@ public class NotSoSimpleClient extends JPanel {
         if(commonconstants.reqCodes.valueOf(data.get("req")) == commonconstants.reqCodes.EXISTING_CHAT) {
             this.currentRoomCode = data.get("code");
             return;
+        }
+
+        if(commonconstants.reqCodes.valueOf(data.get("req")) == commonconstants.reqCodes.CHAT_HISTORY) {
+            this.currentRoomCode = data.get("code");
         }
 
         /* Only show if in chat room */
@@ -264,11 +266,18 @@ public class NotSoSimpleClient extends JPanel {
         currentRoomCode = "WAITING";
     }
 
+    public void requestLoggedChats(String roomCode) {
+        currentRoomCode = roomCode;
+        sendMessage("", commonconstants.reqCodes.CHAT_HISTORY);
+        currentRoomCode = "WAITING";
+    }
+
     public void connect() {
         /* Method to attempt to connect to server */
 
         try {
             /* Create socket to server, and output / input data streams */
+
             clientSocket = new Socket("localhost", serverPort);
             output = new DataOutputStream(clientSocket.getOutputStream());
             input = new DataInputStream(clientSocket.getInputStream());

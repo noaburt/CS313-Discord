@@ -19,6 +19,10 @@ public class simpleChatRoom extends form{
                 client.listening();
             }
         }).start();
+        client.requestLoggedChats(code);
+        do {
+            System.out.print("");
+        } while (client.getRoomCode().equals("WAITING"));
     }
 
     /* add gui components to the NotSoSimple.form */
