@@ -151,6 +151,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                             data = makeData(clientName, receivedData.get("code"), commonconstants.reqCodes.CHAT_HISTORY);
                             sendMsg = packageData(loggedChats.toString(), data);
                             sendToClient(sendMsg);
+                            break;
 
                     }
                 }
@@ -202,6 +203,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
             }
 
             this.closed = true;
+            removeClient(this);
         }
     }
 
@@ -211,10 +213,18 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
         ArrayList<ClientHandler> oldClient = new ArrayList<>(clients);
 
         for (ClientHandler client : oldClient) {
-            if (!client.closed) {
-                client.sendToClient(message);
+            if (client.closed) {
+                clients.remove(client);
+                continue;
             }
+
+            client.sendToClient(message);
         }
+    }
+
+    public void removeClient(ClientHandler client) {
+        /* A client leaves the server, remove handler */
+        clients.remove(client);
     }
 
     public void createRoom(ClientHandler client) {
