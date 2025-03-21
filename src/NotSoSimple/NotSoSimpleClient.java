@@ -90,6 +90,26 @@ public class NotSoSimpleClient extends JPanel {
             this.currentRoomCode = data.get("code");
             return;
         }
+        // server has returned response to creating a user
+        if(commonconstants.reqCodes.valueOf(data.get("req")) == commonconstants.reqCodes.NEW_USER_CONF) {
+            this.currentRoomCode = "";
+            if(data.get("status").equals("VALID")){
+                currentRoomCode = "T";
+            }else{
+                currentRoomCode = "F";
+            }
+            return;
+        }
+        // server has responded to a login attempt
+        if (commonconstants.reqCodes.valueOf(data.get("req")) == commonconstants.reqCodes.LOGIN_CONF){
+            this.currentRoomCode = "";
+            if(data.get("status").equals("VALID")){
+                currentRoomCode = "T";
+            }else{
+                currentRoomCode = "F";
+            }
+            return;
+        }
 
         if(commonconstants.reqCodes.valueOf(data.get("req")) == commonconstants.reqCodes.CHAT_HISTORY) {
             this.currentRoomCode = data.get("code");
@@ -114,13 +134,15 @@ public class NotSoSimpleClient extends JPanel {
         messageArea.append(message + "\n");
     }
 
-    public HashMap<String, String> makeData(String name, String code, commonconstants.reqCodes request) {
+    public HashMap<String, String> makeData(String name, String code, commonconstants.reqCodes request,String status,String password) {
         /* Method to create a data hashmap for packaging with messages */
 
         HashMap<String, String> data = new HashMap<>();
         data.put("name", name);
         data.put("code", code);
         data.put("req", request.toString());
+        data.put("status", status);
+        data.put("password",password);
 
         return data;
     }
@@ -130,7 +152,7 @@ public class NotSoSimpleClient extends JPanel {
 
         /* FORMAT => [OPENCODE]name=NAME[SEPARATOR]chat=CODE[SEPARATOR]req=CODE[CLOSECODE] [OPENCODE]MESSAGE[CLOSECODE] */
 
-        return openCode + "name=" + data.get("name") + separator + "chat=" + data.get("code") + separator + "req=" + data.get("req") + closeCode + openCode + msg + closeCode;
+        return openCode + "name=" + data.get("name") + separator + "chat=" + data.get("code") + separator + "req=" + data.get("req") + separator + "status=" + data.get("status") + separator + "password=" + data.get("password") + closeCode + openCode + msg + closeCode;
     }
 
     public String unpackageData(String fullMsg, HashMap<String, String> dataOut) {
@@ -218,6 +240,14 @@ public class NotSoSimpleClient extends JPanel {
                         }
                         break;
 
+                    case "status":
+                        dataOut.put("status", foundData.substring(foundData.indexOf('=')+1));
+                        break;
+
+                    case "password":
+                        dataOut.put("password", foundData.substring(foundData.indexOf('=')+1));
+                        break;
+
                     default:
                         System.out.println("Strange data detected, skipping");
                 }
@@ -227,17 +257,17 @@ public class NotSoSimpleClient extends JPanel {
         return fullMsg.substring(msgStart, msgEnd);
     }
 
-    public void sendMessage(String message, commonconstants.reqCodes request) {
+    public void sendMessage(String message, commonconstants.reqCodes request,String status,String password) {
         /* Method for sending a message to the server, including name and displaying on gui */
 
         /* No blank messages without request */
         if (message.trim().isEmpty() && request == commonconstants.reqCodes.NONE) { return; }
 
         try {
-            HashMap<String, String> data = makeData(clientName, currentRoomCode, request);
+            HashMap<String, String> data = makeData(clientName, currentRoomCode, request,status,password);
 
             String sendMsg = packageData(message, data);
-            System.out.println(sendMsg);
+            //System.out.println(sendMsg);
             output.writeUTF(sendMsg);
         } catch (IOException e) {
             addMessage("Error: Failed to send message '" + message + "'\n(" + e.getMessage() + ")");
@@ -251,7 +281,7 @@ public class NotSoSimpleClient extends JPanel {
         /* Method for requesting a new 'chatroom' from the server */
 
         try {
-            HashMap<String, String> data = makeData(clientName, currentRoomCode, commonconstants.reqCodes.NEW_CHAT);
+            HashMap<String, String> data = makeData(clientName, currentRoomCode, commonconstants.reqCodes.NEW_CHAT,"","");
 
             String sendMsg = packageData("", data);
             output.writeUTF(sendMsg);
@@ -268,15 +298,26 @@ public class NotSoSimpleClient extends JPanel {
     public void checkRoomExists(String roomCode) {
         currentRoomCode = roomCode;
 
-        sendMessage("", commonconstants.reqCodes.EXISTING_CHAT);
+        sendMessage("", commonconstants.reqCodes.EXISTING_CHAT,"","");
         currentRoomCode = "WAITING";
     }
 
     public void requestLoggedChats(String roomCode) {
         currentRoomCode = roomCode;
-        sendMessage("", commonconstants.reqCodes.CHAT_HISTORY);
+        sendMessage("", commonconstants.reqCodes.CHAT_HISTORY,"","");
         currentRoomCode = "WAITING";
     }
+
+    public void checkNameNotUsed(String name,String password) {
+        sendMessage("",commonconstants.reqCodes.NEW_USER,name,password);
+        currentRoomCode = "WAITING";
+    }
+
+    public void checkNameAndPassword(String name, String password) {
+        sendMessage("", commonconstants.reqCodes.LOGIN,name,password);
+        currentRoomCode = "WAITING";
+    }
+
 
     public void connect() {
         /* Method to attempt to connect to server */

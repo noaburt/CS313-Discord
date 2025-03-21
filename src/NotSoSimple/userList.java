@@ -16,4 +16,12 @@ public class userList {
     public void createUser(String name, String password) {
         users.add(new user(name, password));
     }
+    public user getUser(String name) {
+        for (user u : users) {
+            if (u.getName().equals(name)) {
+                return u;
+            }
+        }
+        return null;
+    }
 }

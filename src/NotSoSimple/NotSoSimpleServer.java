@@ -34,6 +34,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
 
     public ServerSocket serverSocket;
     public ArrayList<ClientHandler> clients;
+    public userList users = new userList();
     public groupList groups = new groupList();
 
     public NotSoSimpleServer(int port) {
@@ -109,6 +110,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                     group G;
                     HashMap<String, String> data;
                     String sendMsg;
+                    user U;
 
                     switch (request) {
                         case commonconstants.reqCodes.NEW_CHAT:
@@ -132,14 +134,15 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                             resendMessage(inputLine);
                             break;
 
-                        case commonconstants.reqCodes.NEW_CHAT_CONF:
+                        case commonconstants.reqCodes.NEW_CHAT_CONF, commonconstants.reqCodes.NEW_USER_CONF
+                        ,commonconstants.reqCodes.LOGIN_CONF:
                             /* Client is not allowed to do this */
                             throw new IllegalAccessException();
 
                         case commonconstants.reqCodes.EXISTING_CHAT:
                             G = groups.getGroup(receivedData.get("code"));
                             String chatCode = (G != null) ? receivedData.get("code") : "F";
-                            data = makeData(clientName, chatCode, commonconstants.reqCodes.EXISTING_CHAT);
+                            data = makeData(clientName, chatCode, commonconstants.reqCodes.EXISTING_CHAT,"","");
                             sendMsg = packageData("", data);
                             sendToClient(sendMsg);
                             break;
@@ -150,11 +153,43 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                             for(String s:G.getMessages()){
                                 loggedChats.append(s).append("\n");
                             }
-                            data = makeData(clientName, receivedData.get("code"), commonconstants.reqCodes.CHAT_HISTORY);
+                            data = makeData(clientName, receivedData.get("code"), commonconstants.reqCodes.CHAT_HISTORY,"","");
                             sendMsg = packageData(loggedChats.toString(), data);
                             //System.out.println("Logged chats: " + loggedChats.toString());
                             sendToClient(sendMsg);
                             break;
+
+                        case commonconstants.reqCodes.NEW_USER:
+                            U = users.getUser(receivedData.get("status"));
+                            if(U == null){
+                                users.createUser(receivedData.get("status"),receivedData.get("password"));
+                                data = makeData(clientName,receivedData.get("code"),commonconstants.reqCodes.NEW_USER_CONF,"VALID","");
+                                sendMsg = packageData("", data);
+                                sendToClient(sendMsg);
+                            }else{
+                                data = makeData(clientName,receivedData.get("code"),commonconstants.reqCodes.NEW_USER_CONF,"INVALID","");
+                                sendMsg = packageData("", data);
+                                sendToClient(sendMsg);
+                            }
+
+                        case commonconstants.reqCodes.LOGIN:
+                            U = users.getUser(receivedData.get("status"));
+                            if(U == null){
+                                data = makeData(clientName,receivedData.get("code"),commonconstants.reqCodes.LOGIN_CONF,"INVALID","");
+                                sendMsg = packageData("", data);
+                                sendToClient(sendMsg);
+                            }else{
+                                if(U.getPassword().equals(receivedData.get("password"))){
+                                    data = makeData(clientName,receivedData.get("code"),commonconstants.reqCodes.LOGIN_CONF,"VALID","");
+                                    sendMsg = packageData("", data);
+                                    sendToClient(sendMsg);
+                                }else{
+                                    data = makeData(clientName,receivedData.get("code"),commonconstants.reqCodes.LOGIN_CONF,"INVALID","");
+                                    sendMsg = packageData("", data);
+                                    sendToClient(sendMsg);
+                                }
+
+                            }
 
                     }
                 }
@@ -235,7 +270,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
         group g = groups.createGroup();
         String chatCode = g.getGroupCode();
 
-        HashMap<String, String> data = makeData(clientName, chatCode, commonconstants.reqCodes.NEW_CHAT_CONF);
+        HashMap<String, String> data = makeData(clientName, chatCode, commonconstants.reqCodes.NEW_CHAT_CONF,"","");
 
         String sendMsg = packageData("", data);
         //System.out.println(sendMsg);

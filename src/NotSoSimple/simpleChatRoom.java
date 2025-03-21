@@ -73,7 +73,7 @@ public class simpleChatRoom extends form{
 
         message.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                client.sendMessage(message.getText(), commonconstants.reqCodes.NONE);
+                client.sendMessage(message.getText(), commonconstants.reqCodes.NONE,"","");
                 message.setText(null);
             }
         });

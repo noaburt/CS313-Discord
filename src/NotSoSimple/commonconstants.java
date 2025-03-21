@@ -16,7 +16,11 @@ public class commonconstants {
         NEW_CHAT,      // CREATING GROUP CHAT
         NEW_CHAT_CONF,  // CONFIRMING NEW GC CODE
         EXISTING_CHAT, // CONFIRMING CHAT EXISTS
-        CHAT_HISTORY // GETTING LOGGED MESSAGES
+        CHAT_HISTORY, // GETTING LOGGED MESSAGES
+        NEW_USER,   // CREATE NEW USER
+        NEW_USER_CONF, // SEND IF USER CREATED
+        LOGIN, //
+        LOGIN_CONF,
     };
 
 
@@ -72,15 +76,14 @@ public class commonconstants {
             "Email of incorrect format",
             "Passwords do not match",
             "You have left required field(s) empty",
-            "The specified rule does not exist"
+            "The specified rule does not exist",
+            "Username in use or empty fields",
+            "Username or Password incorrect",
     };
 
-    public static final int PASSWORD_ERR = 1;
-    public static final int LOGIN_ERR = 2;
-    public static final int EMAIL_ERR = 3;
-    public static final int PASSWORD_MATCH_ERR = 4;
-    public static final int EMPTY_ERR = 5;
-    public static final int RULE_ERR = 6;
+    public static final int LOGIN_ERR = 1;
+    public static final int EMPTY_ERR = 2;
+    public static final int INUSE_ERR = 3;
 
     /* password validation */
     public static boolean containsUppers(String toCheck) {
