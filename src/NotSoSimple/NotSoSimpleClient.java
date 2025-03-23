@@ -16,7 +16,7 @@ import java.util.Map;
  * name=data.NAME, chat=data.CODE, req=data.REQ
  */
 
-public class NotSoSimpleClient extends JPanel {
+public class NotSoSimpleClient {
     /* Class for all clients to be used */
 
     public int serverPort;
