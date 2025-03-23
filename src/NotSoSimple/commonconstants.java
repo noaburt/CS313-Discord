@@ -8,6 +8,7 @@ import java.awt.event.AdjustmentListener;
 public class commonconstants {
 
     public static final int PORT = 4444;
+    public static final int TRIES = 10; // max connection tries for a client
 
     /* Client request codes */
     enum reqCodes {
