@@ -16,7 +16,7 @@ import java.util.Map;
  * name=data.NAME, chat=data.CODE, req=data.REQ
  */
 
-public class NotSoSimpleClient extends JPanel {
+public class NotSoSimpleClient {
     /* Class for all clients to be used */
 
     public int serverPort;
@@ -322,19 +322,36 @@ public class NotSoSimpleClient extends JPanel {
     public void connect() {
         /* Method to attempt to connect to server */
 
+        int tried = 0;
+
         try {
-            /* Create socket to server, and output / input data streams */
 
-            clientSocket = new Socket("localhost", serverPort);
-            output = new DataOutputStream(clientSocket.getOutputStream());
-            input = new DataInputStream(clientSocket.getInputStream());
+            while (tried < commonconstants.TRIES) {
+                try {
+                    /* Create socket to server, and output / input data streams */
 
-            connected = true;
+                    clientSocket = new Socket("localhost", serverPort);
+                    output = new DataOutputStream(clientSocket.getOutputStream());
+                    input = new DataInputStream(clientSocket.getInputStream());
 
-        } catch (IOException e) {
+                    /* Reaches here if no errors above */
+                    connected = true;
+                    tried = commonconstants.TRIES;
+
+                } catch (IOException e) {
+                    catchMessage("[" + tried + "] Could not connect to localhost:" + serverPort, false);
+                    tried++;
+                }
+                Thread.sleep(10); // pause
+            }
+
+        } catch (InterruptedException e) {
+            catchMessage("Thread sleep failed", true);
+            throw new RuntimeException(e);
+        }
+
+        if (!connected) {
             shutdown();
-
-            catchMessage("No server found @ localhost:" + serverPort, false);
         }
     }
 
@@ -366,15 +383,15 @@ public class NotSoSimpleClient extends JPanel {
         /* Method for completing all steps for disconnecting client */
 
         try {
-            clientSocket.close();
-            isListening = false;
+            if (clientSocket != null) {
+                clientSocket.close();
+            }
         } catch (IOException e) {
-            addMessage("Error: Failed to leave server\n(" + e.getMessage() + ")");
-
             //e.printStackTrace();
             catchMessage("Failed to close client socket [" + e.getMessage() + "]", true);
         }
 
+        isListening = false;
         connected = false;
     }
 
