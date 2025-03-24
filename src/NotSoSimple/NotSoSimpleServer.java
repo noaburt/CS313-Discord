@@ -248,7 +248,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
     public void resendMessage(String message) {
         /* Method for sending the already packaged message back to all clients */
 
-        ArrayList<ClientHandler> oldClient = new ArrayList<>(clients);
+        ArrayList<ClientHandler> oldClient = new ArrayList<>(clients); // This fixes concurrentModification exception by making class stateless
 
         for (ClientHandler client : oldClient) {
             if (client.closed) {
