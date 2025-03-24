@@ -159,10 +159,21 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                             sendToClient(sendMsg);
                             break;
 
+//                        case commonconstants.reqCodes.NEW_USER:
+//                            U = users.getUser(receivedData.get("status"));
+//                            if(U == null){
+//                                users.createUser(receivedData.get("status"),receivedData.get("password"));
+//                                data = makeData(clientName,receivedData.get("code"),commonconstants.reqCodes.NEW_USER_CONF,"VALID","");
+//                                sendMsg = packageData("", data);
+//                                sendToClient(sendMsg);
+//                            }else{
+//                                data = makeData(clientName,receivedData.get("code"),commonconstants.reqCodes.NEW_USER_CONF,"INVALID","");
+//                                sendMsg = packageData("", data);
+//                                sendToClient(sendMsg);
+//                            }
+
                         case commonconstants.reqCodes.NEW_USER:
-                            U = users.getUser(receivedData.get("status"));
-                            if(U == null){
-                                users.createUser(receivedData.get("status"),receivedData.get("password"));
+                            if(createUser(receivedData)){
                                 data = makeData(clientName,receivedData.get("code"),commonconstants.reqCodes.NEW_USER_CONF,"VALID","");
                                 sendMsg = packageData("", data);
                                 sendToClient(sendMsg);
@@ -171,6 +182,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                                 sendMsg = packageData("", data);
                                 sendToClient(sendMsg);
                             }
+
 
                         case commonconstants.reqCodes.LOGIN:
                             U = users.getUser(receivedData.get("status"));
@@ -203,6 +215,16 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                 catchMessage("Client sent NEW_CHAT_CONF, not allowed", true);
 
                 shutdownClient();
+            }
+        }
+
+        public synchronized boolean createUser(HashMap<String, String> receivedData){
+            user U = users.getUser(receivedData.get("status"));
+            if(U == null){
+                users.createUser(receivedData.get("status"),receivedData.get("password"));
+                return true;
+            }else{
+                return false;
             }
         }
 
@@ -265,7 +287,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
         clients.remove(client);
     }
 
-    public void createRoom(ClientHandler client) {
+    public synchronized void createRoom(ClientHandler client) {
         /* Method for creating a new chat room */
         group g = groups.createGroup();
         String chatCode = g.getGroupCode();
