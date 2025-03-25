@@ -183,7 +183,7 @@ public class SimpleServer extends SimpleClient {
                             addMessage("Received file: " + fileName);
 
                             // Notify all clients about the uploaded file
-                            resendMessage("A file has been uploaded: " + fileName);
+                            sendMessage("A file has been uploaded: " + fileName); // Modified to use the format
                         } catch (IOException ex) {
                             catchMessage("Error receiving file: " + ex.getMessage(), true);
                         }
