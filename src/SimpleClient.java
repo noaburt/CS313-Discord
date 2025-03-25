@@ -207,17 +207,17 @@ public class SimpleClient extends JPanel {
             enableButtons();
             addMessage("Successfully connected to server\n");
 
-            /* While loops continue until exception is thrown */
+            /* While loop continues until exception is thrown */
             while (true) {
                 /* Constantly read for messages and show */
                 String inputLine = input.readUTF();
 
                 // Check if the line contains "A file has been uploaded"
-                if (inputLine.startsWith("A file has been uploaded: ")) {
-                    String fileName = inputLine.substring("A file has been uploaded: ".length());
-                    displayImage("uploads/" + fileName);
+                if (inputLine.startsWith("Server: A file has been uploaded: ")) {
+                    String fileName = inputLine.substring("Server: A file has been uploaded: ".length());
+                    displayImage("uploads/" + fileName); // Display the image when a file is uploaded
                 } else {
-                    addMessage(inputLine);
+                    addMessage(inputLine); // Handle regular chat messages
                 }
             }
         } catch (IOException e) {
