@@ -1,9 +1,11 @@
 package NotSoSimple;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class userList {
     ArrayList<user> users;
+    AtomicBoolean listLock = new AtomicBoolean(false);
     public userList() {
         users = new ArrayList<>();
     }
@@ -23,5 +25,20 @@ public class userList {
             }
         }
         return null;
+    }
+    public AtomicBoolean getListLock() {
+        return listLock;
+    }
+    public boolean setListLock(AtomicBoolean ll) {
+
+        if(listLock.get() == ll.get()){
+            return false;
+        }
+        this.listLock.set(ll.get());
+        return true;
+    }
+
+    public ArrayList<user> getUsers() {
+        return users;
     }
 }

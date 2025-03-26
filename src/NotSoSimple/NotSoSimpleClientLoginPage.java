@@ -99,6 +99,7 @@ public class NotSoSimpleClientLoginPage extends form{
                             do {
                                 System.out.print("");
                             } while (client.getRoomCode().equals("WAITING"));
+                            System.out.print("");
                             if (client.getRoomCode().equals("T")) {
                                 client.clientName = registerName;
                                 new NotEvenCloseToSimpleSelectionPage(client, 0).setVisible(true);

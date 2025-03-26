@@ -75,13 +75,13 @@ public class NotSoSimpleClient {
         /* Method for appending a message to the display, not for sending */
         HashMap<String, String> data = new HashMap<>();
         String toShow = unpackageData(inputLine, data);
-        System.out.println(inputLine);
+        //System.out.println(inputLine);
 
         if (commonconstants.reqCodes.valueOf(data.get("req")) == commonconstants.reqCodes.NEW_CHAT_CONF) {
             /* Server has confirmed new chat */
             this.currentRoomCode = data.get("code");
 
-            System.out.println("Client joined new chat room: " + this.currentRoomCode);
+            //System.out.println("Client joined new chat room: " + this.currentRoomCode);
 
             return;
         }

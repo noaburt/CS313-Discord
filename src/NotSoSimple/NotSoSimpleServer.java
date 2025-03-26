@@ -16,6 +16,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /*
  * NotSoSimple.NotSoSimpleServer
@@ -148,6 +149,9 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                             break;
 
                         case commonconstants.reqCodes.CHAT_HISTORY:
+//                            for(user u : users.getUsers()){
+//                                System.out.println(u.getName());
+//                            }
                             G = groups.getGroup(receivedData.get("code"));
                             StringBuilder loggedChats = new StringBuilder();
                             for(String s:G.getMessages()){
@@ -173,15 +177,22 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
 //                            }
 
                         case commonconstants.reqCodes.NEW_USER:
+                            while(true){
+                            if(!users.setListLock(commonconstants.t)){
+                                continue;
+                            }
+                            break;
+                            }
+
                             if(createUser(receivedData)){
                                 data = makeData(clientName,receivedData.get("code"),commonconstants.reqCodes.NEW_USER_CONF,"VALID","");
-                                sendMsg = packageData("", data);
-                                sendToClient(sendMsg);
                             }else{
                                 data = makeData(clientName,receivedData.get("code"),commonconstants.reqCodes.NEW_USER_CONF,"INVALID","");
-                                sendMsg = packageData("", data);
-                                sendToClient(sendMsg);
                             }
+                            users.setListLock(commonconstants.f);
+                            sendMsg = packageData("", data);
+                            sendToClient(sendMsg);
+                            break;
 
 
                         case commonconstants.reqCodes.LOGIN:
@@ -202,6 +213,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                                 }
 
                             }
+                            break;
 
                     }
                 }
@@ -219,14 +231,19 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
         }
 
         public synchronized boolean createUser(HashMap<String, String> receivedData){
-            user U = users.getUser(receivedData.get("status"));
-            if(U == null){
-                users.createUser(receivedData.get("status"),receivedData.get("password"));
-                return true;
-            }else{
-                return false;
+
+            boolean created = false;
+
+
+            if(users.getUser(receivedData.get("status")) == null) {
+                users.createUser(receivedData.get("status"), receivedData.get("password"));
+                created = true;
             }
+
+            return created;
         }
+
+
 
         public void sendToClient(String message) {
             /* Send message to this client, message should be packaged already */
@@ -272,6 +289,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
 
         ArrayList<ClientHandler> oldClient = new ArrayList<>(clients); // This fixes concurrentModification exception by making class stateless
 
+        //for (ClientHandler client : clients) {  //broken como thing not static
         for (ClientHandler client : oldClient) {
             if (client.closed) {
                 clients.remove(client);

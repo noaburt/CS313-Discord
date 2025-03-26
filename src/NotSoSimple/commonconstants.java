@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class commonconstants {
 
@@ -69,6 +70,10 @@ public class commonconstants {
     public static final int SCH_MANAGER = 102;
     public static final int TEACHER = 103;
     public static final int STUDENT = 104;
+
+    /* atomic t and f */
+    public static final AtomicBoolean f = new AtomicBoolean(false);
+    public static final AtomicBoolean t = new AtomicBoolean(true);
 
     /* gui error label types */
     public static final String[] ERR_MSGS = {
