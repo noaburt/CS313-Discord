@@ -2,7 +2,7 @@ package NotSoSimple;
 
 import javax.swing.*;
 
-public class breaker {
+public class breaker1ThreadReckoning {
     static int x = 0;
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
