@@ -1,13 +1,5 @@
 package NotSoSimple;
 
-import Simple.SimpleClient;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -15,8 +7,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /*
  * NotSoSimple.NotSoSimpleServer
@@ -115,8 +105,24 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
 
                     switch (request) {
                         case commonconstants.reqCodes.NEW_CHAT:
+                            while(true){
+                                if(!groups.setListLock(commonconstants.t)){
+                                    continue;
+                                }
+                                break;
+                            }
                             /* Client has requested new chat */
-                            createRoom(this);
+                            String code;
+                            if(receivedData.get("status").equals("BREAKER")) {
+                                code = createRoomBreaker();
+                            }else{
+                                code = createRoom();
+                            }
+                            data = makeData(clientName,code,commonconstants.reqCodes.NEW_CHAT_CONF,"","");
+                            sendMsg = packageData("", data);
+                            sendToClient(sendMsg);
+                            groups.setListLock(commonconstants.f);
+
                             break;
 
                         case commonconstants.reqCodes.LEAVE:
@@ -149,8 +155,11 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                             break;
 
                         case commonconstants.reqCodes.CHAT_HISTORY:
-                            for(user u : users.getUsers()){
-                                System.out.println(u.getName());
+//                            for(user u : users.getUsers()){
+//                                System.out.println(u.getName());
+//                            }
+                            for(group g:groups.getGroups()){
+                                System.out.println(g.getGroupCode());
                             }
                             G = groups.getGroup(receivedData.get("code"));
                             StringBuilder loggedChats = new StringBuilder();
@@ -163,26 +172,14 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                             sendToClient(sendMsg);
                             break;
 
-//                        case commonconstants.reqCodes.NEW_USER:
-//                            U = users.getUser(receivedData.get("status"));
-//                            if(U == null){
-//                                users.createUser(receivedData.get("status"),receivedData.get("password"));
-//                                data = makeData(clientName,receivedData.get("code"),commonconstants.reqCodes.NEW_USER_CONF,"VALID","");
-//                                sendMsg = packageData("", data);
-//                                sendToClient(sendMsg);
-//                            }else{
-//                                data = makeData(clientName,receivedData.get("code"),commonconstants.reqCodes.NEW_USER_CONF,"INVALID","");
-//                                sendMsg = packageData("", data);
-//                                sendToClient(sendMsg);
-//                            }
 
                         case commonconstants.reqCodes.NEW_USER:
-//                            while(true){
-//                            if(!users.setListLock(commonconstants.t)){
-//                                continue;
-//                            }
-//                            break;
-//                            }
+                            while(true){
+                            if(!users.setListLock(commonconstants.t)){
+                                continue;
+                            }
+                            break;
+                            }
 
                             if(createUser(receivedData)){
                                 data = makeData(clientName,receivedData.get("code"),commonconstants.reqCodes.NEW_USER_CONF,"VALID","");
@@ -229,21 +226,6 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                 shutdownClient();
             }
         }
-
-        public synchronized boolean createUser(HashMap<String, String> receivedData){
-
-            boolean created = false;
-
-
-            if(users.getUser(receivedData.get("status")) == null) {
-                users.createUser(receivedData.get("status"), receivedData.get("password"));
-                created = true;
-            }
-
-            return created;
-        }
-
-
 
         public void sendToClient(String message) {
             /* Send message to this client, message should be packaged already */
@@ -305,16 +287,43 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
         clients.remove(client);
     }
 
-    public synchronized void createRoom(ClientHandler client) {
+    public String createRoom() {
         /* Method for creating a new chat room */
-        group g = groups.createGroup();
-        String chatCode = g.getGroupCode();
+        String created = "F";
+        String rCode;
+        int tries = 0;
+        while(created.equals("F") || tries < 500){
+            rCode = groups.bensWonderfulFunction();
+            if(groups.getGroup(rCode) == null){
+                groups.createGroup(rCode);
+                created = rCode;
+            }
+            tries++;
+        }
+        return created;
+    }
 
-        HashMap<String, String> data = makeData(clientName, chatCode, commonconstants.reqCodes.NEW_CHAT_CONF,"","");
+    public String createRoomBreaker() {
+        /* Method for creating a new chat room */
+        String created = "F";
+        if(groups.getGroup("test") == null){
+            groups.createGroup("test");
+            created = "test";
+        }
+        return created;
+    }
 
-        String sendMsg = packageData("", data);
-        //System.out.println(sendMsg);
-        client.sendToClient(sendMsg);
+    public synchronized boolean createUser(HashMap<String, String> receivedData){
+
+        boolean created = false;
+
+
+        if(users.getUser(receivedData.get("status")) == null) {
+            users.createUser(receivedData.get("status"), receivedData.get("password"));
+            created = true;
+        }
+
+        return created;
     }
 
     @Override

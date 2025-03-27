@@ -80,12 +80,17 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
 
                             System.out.print("");
                         } while (client.getRoomCode().equals("WAITING"));
+                        if(client.getRoomCode().equals("F")){
+                            JOptionPane.showMessageDialog(null, "Chat Room could not be created try again");
+                            client.setRoomCode("");
+                        }else{
+                            client.messageArea.setText("");
+                            client.messageField.setText("");
 
-                        client.messageArea.setText("");
-                        client.messageField.setText("");
+                            new simpleChatRoom(client,0 , client.getRoomCode()).setVisible(true);
+                            NotEvenCloseToSimpleSelectionPage.this.dispose();
+                        }
 
-                        new simpleChatRoom(client,0 , client.getRoomCode()).setVisible(true);
-                        NotEvenCloseToSimpleSelectionPage.this.dispose();
                     }
                 }
         );

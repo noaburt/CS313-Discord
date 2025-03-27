@@ -277,6 +277,22 @@ public class NotSoSimpleClient {
         }
     }
 
+    public void requestChatBreaker(){
+        try {
+            HashMap<String, String> data = makeData(clientName, currentRoomCode, commonconstants.reqCodes.NEW_CHAT,"BREAKER","");
+
+            String sendMsg = packageData("", data);
+            output.writeUTF(sendMsg);
+            currentRoomCode = "WAITING";
+
+        } catch (IOException e) {
+            addMessage("Error: Failed to request new chat\n(" + e.getMessage() + ")");
+
+            //e.printStackTrace();
+            catchMessage("Sending chat request from client [" + e.getMessage() + "] to server [" + serverPort + "]", true);
+        }
+    }
+
     public void requestChat() {
         /* Method for requesting a new 'chatroom' from the server */
 

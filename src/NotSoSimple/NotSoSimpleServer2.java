@@ -204,7 +204,7 @@ public class NotSoSimpleServer2 extends SimpleClient {
     }
 
     public String reqServer(){
-        group g = groups.createGroup();
+        group g = groups.createGroup("");
         return g.getGroupCode();
     }
 }
