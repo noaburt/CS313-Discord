@@ -7,6 +7,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /*
  * NotSoSimple.NotSoSimpleServer
@@ -161,7 +163,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
 //                            for(group g:groups.getGroups()){
 //                                System.out.println(g.getGroupCode());
 //                            }
-                            ArrayList<String> loggedchats = groups.getGroup(receivedData.get("code")).getMessages();
+                            List<String> loggedchats = groups.getGroup(receivedData.get("code")).getMessages();
                             StringBuilder loggedChats = new StringBuilder();
                             for(String s:loggedchats){
                                 loggedChats.append(s).append("\n");
@@ -217,7 +219,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
             } catch (IOException e) {
                 //e.printStackTrace();
 
-                catchMessage("Client left the server [handler]", false);
+                //catchMessage("Client left the server [handler]", false);
 
             } catch (IllegalAccessException e) {
                 //e.printStackTrace();

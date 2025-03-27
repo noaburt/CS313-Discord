@@ -2,28 +2,29 @@ package NotSoSimple;
 
 import java.util.ArrayList;
 
-public class group {
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.List;
+import java.util.ArrayList;
 
+public class group {
     private String groupCode;
-    private ArrayList<String> messages;
+    private ConcurrentLinkedQueue<String> messages;
 
     public group(String code) {
         this.groupCode = code;
-        messages = new ArrayList<>();
+        messages = new ConcurrentLinkedQueue<>();
     }
+
     public String getGroupCode() {
         return groupCode;
     }
-    public ArrayList<String> getMessages() {
-        return messages;
+
+    public List<String> getMessages() {
+        return new ArrayList<>(messages); // Convert queue to list
     }
-    public void setMessages(ArrayList<String> messages) {
-        this.messages = messages;
-    }
+
     public void addMessage(String message) {
         messages.add(message);
     }
-
 }
-
 
