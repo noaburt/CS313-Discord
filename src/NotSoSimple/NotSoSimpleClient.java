@@ -339,7 +339,7 @@ public class NotSoSimpleClient {
                     tried = commonconstants.TRIES;
 
                 } catch (IOException e) {
-                    catchMessage("[" + tried + "] Could not connect to localhost:" + serverPort, false);
+                    //catchMessage("[" + tried + "] Could not connect to localhost:" + serverPort, false);
                     tried++;
                 }
                 Thread.sleep(10); // pause
@@ -351,6 +351,7 @@ public class NotSoSimpleClient {
         }
 
         if (!connected) {
+            catchMessage("Could not connect to localhost:" + serverPort, false);
             shutdown();
         }
     }

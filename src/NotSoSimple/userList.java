@@ -17,6 +17,7 @@ public class userList {
     }
     public void createUser(String name, String password) {
         users.add(new user(name, password));
+        System.out.println(name + " created");
     }
     public user getUser(String name) {
         for (user u : users) {

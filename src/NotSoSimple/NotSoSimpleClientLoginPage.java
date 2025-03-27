@@ -3,6 +3,7 @@ package NotSoSimple;
 import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.concurrent.TimeUnit;
 
 public class NotSoSimpleClientLoginPage extends form{
     int err;
@@ -99,7 +100,11 @@ public class NotSoSimpleClientLoginPage extends form{
                             do {
                                 System.out.print("");
                             } while (client.getRoomCode().equals("WAITING"));
-                            System.out.print("");
+                            try {
+                                TimeUnit.MILLISECONDS.sleep(10);
+                            } catch (InterruptedException ee) {
+                                throw new RuntimeException(ee);
+                            }
                             if (client.getRoomCode().equals("T")) {
                                 client.clientName = registerName;
                                 new NotEvenCloseToSimpleSelectionPage(client, 0).setVisible(true);

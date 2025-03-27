@@ -1,6 +1,7 @@
 package NotSoSimple;
 
 import javax.swing.*;
+import java.util.concurrent.TimeUnit;
 
 public class clientStarterRun {
     public static void main(String[] args) {
@@ -14,7 +15,11 @@ public class clientStarterRun {
                         S.connect();
                     }
                 }).start();
-
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
 
                 new NotSoSimpleClientLoginPage(null, 0).setVisible(true);
                 new NotSoSimpleClientLoginPage(null, 0).setVisible(true);

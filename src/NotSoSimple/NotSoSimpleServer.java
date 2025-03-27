@@ -149,9 +149,9 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                             break;
 
                         case commonconstants.reqCodes.CHAT_HISTORY:
-//                            for(user u : users.getUsers()){
-//                                System.out.println(u.getName());
-//                            }
+                            for(user u : users.getUsers()){
+                                System.out.println(u.getName());
+                            }
                             G = groups.getGroup(receivedData.get("code"));
                             StringBuilder loggedChats = new StringBuilder();
                             for(String s:G.getMessages()){
@@ -177,12 +177,12 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
 //                            }
 
                         case commonconstants.reqCodes.NEW_USER:
-                            while(true){
-                            if(!users.setListLock(commonconstants.t)){
-                                continue;
-                            }
-                            break;
-                            }
+//                            while(true){
+//                            if(!users.setListLock(commonconstants.t)){
+//                                continue;
+//                            }
+//                            break;
+//                            }
 
                             if(createUser(receivedData)){
                                 data = makeData(clientName,receivedData.get("code"),commonconstants.reqCodes.NEW_USER_CONF,"VALID","");
