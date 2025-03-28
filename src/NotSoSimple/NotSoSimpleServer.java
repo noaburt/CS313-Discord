@@ -126,8 +126,12 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                             break;
 
                         case commonconstants.reqCodes.LEAVE:
-                            /* Resend goodbye message and stop handler */
+                            /* Resend goodbye message and leave chatroom */
                             resendMessage(inputLine);
+                            break;
+
+                        case commonconstants.reqCodes.DISCONNECT:
+                            /* Leave server and shutdown handler */
                             this.shutdownClient();
                             break;
 

@@ -14,7 +14,8 @@ public class commonconstants {
     /* Client request codes */
     enum reqCodes {
         NONE,          // SENDING MESSAGE etc.
-        LEAVE,         // LEAVING SERVER
+        DISCONNECT,    // LEAVE SERVER
+        LEAVE,         // LEAVING CHATROOM
         NEW_CHAT,      // CREATING GROUP CHAT
         NEW_CHAT_CONF,  // CONFIRMING NEW GC CODE
         EXISTING_CHAT, // CONFIRMING CHAT EXISTS
