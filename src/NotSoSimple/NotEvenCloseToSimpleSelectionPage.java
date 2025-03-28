@@ -157,8 +157,9 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
                          */
                         client.connected = false;
                         client.setRoomCode("");
+
                         /* Notify server that client has left */
-                        client.sendMessage("", commonconstants.reqCodes.LEAVE,"","");
+                        client.sendMessage("", commonconstants.reqCodes.DISCONNECT,"","");
                         new NotSoSimpleClientLoginPage(null,0).setVisible(true);
                         NotEvenCloseToSimpleSelectionPage.this.dispose();
                     }
