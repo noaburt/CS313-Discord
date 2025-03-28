@@ -1,9 +1,7 @@
 package NotSoSimple;
 
 import javax.swing.*;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
@@ -275,6 +273,39 @@ public class NotSoSimpleClient {
             //e.printStackTrace();
             catchMessage("Sending message from client [" + e.getMessage() + "] to server [" + serverPort + "]", true);
         }
+    }
+
+    /* Method to send file to the server */
+    public void sendFile(File selectedFile) {
+        try {
+            FileInputStream fileInputStream = new FileInputStream(selectedFile);
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+
+            // Inform server about the file
+            String message = formatFileDetails(selectedFile.getName(), selectedFile.length());
+            if (message.isEmpty()) { throw new IOException("File name/size is empty"); }
+
+            sendMessage(message, commonconstants.reqCodes.FILE_NAME_LEN, "","");
+
+            // Send the file content
+            while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                output.write(buffer, 0, bytesRead);
+            }
+
+            fileInputStream.close();
+            sendMessage("Uploaded a file", commonconstants.reqCodes.NONE, "", "");
+        } catch (IOException ex) {
+            catchMessage("Error: Failed to upload file '" + selectedFile.getName() + "'\n(" + ex.getMessage() + ")", true);
+        }
+    }
+
+    /* Format file details for sending to server */
+    private String formatFileDetails(String name, long size) {
+        if (name == null || name.trim().isEmpty()) { return ""; }
+        if (size == 0) { return ""; }
+
+        return name + "///" + size; /* Since / is not allowed in filesnames for windows or linux / unix OS's */
     }
 
     public void requestChatBreaker(){

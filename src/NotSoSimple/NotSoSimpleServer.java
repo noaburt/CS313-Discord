@@ -1,8 +1,6 @@
 package NotSoSimple;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -139,6 +137,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                             G = groups.getGroup(receivedData.get("code"));
                             data = new HashMap<>();
                             String toShow = unpackageData(inputLine, data);
+
                             G.addMessage(data.get("name") + ": " + toShow);
                             resendMessage(inputLine);
                             break;
@@ -177,17 +176,19 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
 
                         case commonconstants.reqCodes.NEW_USER:
                             while(true){
-                            if(!users.setListLock(commonconstants.t)){
-                                continue;
-                            }
-                            break;
+                                if(!users.setListLock(commonconstants.t)){
+                                    continue;
+                                }
+
+                                break;
                             }
 
                             if(createUser(receivedData)){
                                 data = makeData(clientName,receivedData.get("code"),commonconstants.reqCodes.NEW_USER_CONF,"VALID","");
-                            }else{
+                            } else {
                                 data = makeData(clientName,receivedData.get("code"),commonconstants.reqCodes.NEW_USER_CONF,"INVALID","");
                             }
+
                             users.setListLock(commonconstants.f);
                             sendMsg = packageData("", data);
                             sendToClient(sendMsg);
@@ -214,6 +215,10 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                             }
                             break;
 
+                        case FILE_NAME_LEN:
+                            receiveFile(inputLine);
+                            break;
+
                     }
                 }
             } catch (IOException e) {
@@ -226,6 +231,38 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                 catchMessage("Client sent NEW_CHAT_CONF, not allowed", true);
 
                 shutdownClient();
+            }
+        }
+
+        private void receiveFile(String inputLine){
+            /* Method to handle file upload from a client */
+            try {
+                // Get file details
+                String[] fileDetails = unpackageData(inputLine, null).split("///");
+
+                String fileName = fileDetails[0];
+                long fileLength = Long.parseLong(fileDetails[1]);
+
+                // Create uploads directory if it doesn't exist
+                new File("uploads").mkdirs();
+
+                // Received file creation
+                File file = new File("uploads/" + fileName);
+                FileOutputStream fileOutputStream = new FileOutputStream(file);
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                long remaining = fileLength;
+
+                // Read and save the file
+                while (remaining > 0 && (bytesRead = thisInput.read(buffer, 0, (int) Math.min(buffer.length, remaining))) != -1) {
+                    fileOutputStream.write(buffer, 0, bytesRead);
+                    remaining -= bytesRead;
+                }
+
+                fileOutputStream.close();
+                addMessage("You received a file: " + fileName);
+            } catch (IOException ex) {
+                catchMessage("Error receiving file: " + ex.getMessage(), true);
             }
         }
 

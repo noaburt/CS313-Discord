@@ -2,6 +2,8 @@ package NotSoSimple;
 
 import javax.swing.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.FileInputStream;
 
 public class simpleChatRoom extends form{
 
@@ -48,6 +50,9 @@ public class simpleChatRoom extends form{
         // disconnect
         componentList.put("leaveChat", commonconstants.makeButton("Leave Chat", 0, formColumns[0], commonconstants.WIN_SIZE[1] - commonconstants.BUTTON_SIZE[1] - 70,0));
 
+        // upload file
+        componentList.put("uploadFile", commonconstants.makeButton("Upload File", 0, formColumns[1], commonconstants.WIN_SIZE[1] - commonconstants.BUTTON_SIZE[1] - 70,0));
+
         // listeners
 
         componentList.get("leaveChat").addMouseListener(new MouseAdapter() {
@@ -68,6 +73,20 @@ public class simpleChatRoom extends form{
 
                 new NotEvenCloseToSimpleSelectionPage(client,0).setVisible(true);  // THIS MIGHT GIVE PROBLEMS AS VALIDATIOPN ON CONNECTION NOT REDONE PROPERLY
                 simpleChatRoom.this.dispose();
+            }
+        });
+
+        componentList.get("uploadFile").addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                /* Method for choosing and uploading a file to the server */
+                JFileChooser fileChooser = new JFileChooser();
+                int returnValue = fileChooser.showOpenDialog(simpleChatRoom.this);
+
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+
+                    client.sendFile(selectedFile);
+                }
             }
         });
 

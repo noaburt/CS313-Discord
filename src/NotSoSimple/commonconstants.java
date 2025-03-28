@@ -23,6 +23,7 @@ public class commonconstants {
         NEW_USER_CONF, // SEND IF USER CREATED
         LOGIN, //
         LOGIN_CONF,
+        FILE_NAME_LEN, // USER IS ABOUT TO SEND A FILE
     };
 
 
