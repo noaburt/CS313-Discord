@@ -162,8 +162,8 @@ public class commonconstants {
      * @param int: y location to show text field
      * @return JTextField: created and formatted text field
      */
-    public static JTextField makeTextField(int guiTheme, int x, int y) {
-        JTextField newTextField = new JTextField();
+    public static JTextField makeTextField(int guiTheme, int x, int y, boolean isPassword) {
+        JTextField newTextField = isPassword ? new JPasswordField() : new JTextField();
 
         newTextField.setBounds(x, y, TFIELD_SIZE[0] - 20, TFIELD_SIZE[1]);
         newTextField.setBackground( TFIELD_COLOR[guiTheme] );

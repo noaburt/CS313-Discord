@@ -64,7 +64,7 @@ public class simpleChatRoom extends form{
                  */
 
                 /* Notify server that client has left */
-                //client.sendMessage("", commonconstants.reqCodes.LEAVE);
+                client.sendMessage("Has left the chat", commonconstants.reqCodes.LEAVE, "", "");
 
                 /* Reset field, area, code */
                 client.messageArea.setText("");

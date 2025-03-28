@@ -31,11 +31,11 @@ public class NotSoSimpleClientLoginPage extends form{
 
         componentList.put("uNameHead", commonconstants.makeSubheading("Display Name", 0, formColumns[0], getRowPosition(0), SwingConstants.LEFT));
 
-        textComponentList.put("uNameField", commonconstants.makeTextField(0, formColumns[0], getRowPosition(0) + commonconstants.FIELD_DIST));
+        textComponentList.put("uNameField", commonconstants.makeTextField(0, formColumns[0], getRowPosition(0) + commonconstants.FIELD_DIST, false));
 
         componentList.put("uPWordHead", commonconstants.makeSubheading("Password", 0, formColumns[0], getRowPosition(1), SwingConstants.LEFT));
 
-        textComponentList.put("uPWordField", commonconstants.makeTextField(0, formColumns[0], getRowPosition(1) + commonconstants.FIELD_DIST));
+        textComponentList.put("uPWordField", commonconstants.makeTextField(0, formColumns[0], getRowPosition(1) + commonconstants.FIELD_DIST, true));
 
         if(err ==1){
             componentList.put("err1",commonconstants.makeErrorLabel(8,formColumns[0],getRowPosition(1) + 100,SwingConstants.LEFT));
