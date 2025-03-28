@@ -46,10 +46,11 @@ public class NotEvenCloseToSimpleSelectionPage extends form{
                          */
                         String code = "GLOBAL";
                         client.setRoomCode(code);
-
+                        client.sendMessage("Has joined the chat", commonconstants.reqCodes.LEAVE, "", "");
                         client.messageArea.setText("");
                         client.messageField.setText("");
                         new simpleChatRoom(client,0 , code).setVisible(true);
+
                         NotEvenCloseToSimpleSelectionPage.this.dispose();
                     }
                 }

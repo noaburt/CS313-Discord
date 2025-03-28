@@ -102,6 +102,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                     HashMap<String, String> data;
                     String sendMsg;
                     user U;
+                    String toShow;
 
                     switch (request) {
                         case commonconstants.reqCodes.NEW_CHAT:
@@ -128,6 +129,9 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                         case commonconstants.reqCodes.LEAVE:
                             /* Resend goodbye message and leave chatroom */
                             resendMessage(inputLine);
+                            data = new HashMap<>();
+                            toShow = unpackageData(inputLine, data);
+                            groups.getGroup(receivedData.get("code")).addMessage(data.get("name") + ": " + toShow);
                             break;
 
                         case commonconstants.reqCodes.DISCONNECT:
@@ -138,11 +142,10 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                         case commonconstants.reqCodes.NONE:
                             /* Resent message to all clients as normal */
 
-                            G = groups.getGroup(receivedData.get("code"));
-                            data = new HashMap<>();
-                            String toShow = unpackageData(inputLine, data);
 
-                            G.addMessage(data.get("name") + ": " + toShow);
+                            data = new HashMap<>();
+                            toShow = unpackageData(inputLine, data);
+                            groups.getGroup(receivedData.get("code")).addMessage(data.get("name") + ": " + toShow);
                             resendMessage(inputLine);
                             break;
 
