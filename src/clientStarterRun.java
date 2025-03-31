@@ -1,3 +1,6 @@
+import NotSoSimple.NotSoSimpleClient;
+import NotSoSimple.NotSoSimpleClientLoginPage;
+
 import javax.swing.*;
 
 public class clientStarterRun {
