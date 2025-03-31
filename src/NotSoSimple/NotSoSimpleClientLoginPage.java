@@ -95,6 +95,14 @@ public class NotSoSimpleClientLoginPage extends form{
                         }).start();
                         String registerName = textComponentList.get("uNameField").getText();
                         String registerPassword = textComponentList.get("uPWordField").getText();
+
+                        if (!isValidPassword(registerPassword)) {
+                            JOptionPane.showMessageDialog(null,
+                                    "Password must be at least 8 characters and include a number and a symbol.",
+                                    "Weak Password", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
                         if(!registerName.isEmpty() && !registerPassword.isEmpty()) {
                             client.checkNameNotUsed(registerName, registerPassword);
                             do {
@@ -144,5 +152,10 @@ public class NotSoSimpleClientLoginPage extends form{
         }
         return code;
     }
+
+    public static boolean isValidPassword(String password) {
+        return password.matches("^(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$");
+    }
+
 
 }

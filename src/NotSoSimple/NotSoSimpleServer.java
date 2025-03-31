@@ -119,6 +119,8 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                             }else{
                                 code = createRoom();
                             }
+
+                            groups.getGroup(code).addMessage(receivedData.get("name") + ": Has created this room");
                             data = makeData(clientName,code,commonconstants.reqCodes.NEW_CHAT_CONF,"","");
                             sendMsg = packageData("", data);
                             sendToClient(sendMsg);
@@ -150,13 +152,16 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                             break;
 
                         case commonconstants.reqCodes.NEW_CHAT_CONF, commonconstants.reqCodes.NEW_USER_CONF
-                        ,commonconstants.reqCodes.LOGIN_CONF:
+                                ,commonconstants.reqCodes.LOGIN_CONF:
                             /* Client is not allowed to do this */
                             throw new IllegalAccessException();
 
                         case commonconstants.reqCodes.EXISTING_CHAT:
                             G = groups.getGroup(receivedData.get("code"));
                             String chatCode = (G != null) ? receivedData.get("code") : "F";
+                            if(G != null && !chatCode.equals("F")) {
+                                G.addMessage(receivedData.get("name") + ": Has joined the room");
+                            }
                             data = makeData(clientName, chatCode, commonconstants.reqCodes.EXISTING_CHAT,"","");
                             sendMsg = packageData("", data);
                             sendToClient(sendMsg);
