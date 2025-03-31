@@ -1,4 +1,6 @@
 import javax.swing.*;
+import NotSoSimple.NotSoSimpleClient;
+import NotSoSimple.NotSoSimpleClientLoginPage;
 
 public class clientStarterRun {
     public static void main(String[] args) {
