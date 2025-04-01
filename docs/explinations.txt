@@ -1,0 +1,42 @@
+
+Server:
+
+Server is instantiated, attempts to start 'serverSocket'
+If socket connection is made, server constantly listens for connections
+
+When a connection is made to the socket by a client, a new ClientHandler is created for that client
+This ClientHandler is added to an array list of clients, and the ClientHandler is started
+
+
+ClientHander:
+
+The ClientHandler class extends thread, stores the connected clients 'clientSocket'
+run() method of ClientHandler begins listening for messages sent to the server from it's client
+New dataInput and OutputStream is received from clientSocket
+
+Process of reading messages:
+- inputLine is readUTF from dataInputStream
+- unpackageData from this input line
+- switch case for request code in unpackaged data
+- if code is NONE message is resent to all other clients in current group
+- rest of codes do various things, e.g. creating new groupchat, disconnecting, loading chat history
+
+
+Encoded Data:
+
+The first x characters of each sent message contain data about the message being sent to / from the client
+Format of messages sent are:
+
+        [OPENCODE]name=NAME[SEPARATOR]chat=CODE[SEPARATOR]req=CODE[CLOSECODE] [OPENCODE]MESSAGE[CLOSECODE]
+
+Codes are defined somewhere in Client
+Package and UnpackageData methods are in Client class
+
+
+Client:
+
+Mostly to deal with receiving resent messages
+Packages message with data before sending it
+Tries so many times to connect to server before 'failing' to connect
+Listens for new messages received, adds to message area / box
+
