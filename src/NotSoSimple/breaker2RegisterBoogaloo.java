@@ -7,18 +7,12 @@ public class breaker2RegisterBoogaloo {
 
     public static String bensWonderfulFunction(){
         String code = "";
+        String[] characters = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
+                              ,"0","1","2","3","4","5","6","7","8","9"};
         for(int counter = 0; counter < 21; counter++) {
 
-            int randomNum = (int) (Math.random() * 10);
-            int randomLet = (int) (Math.random() * 26);
-            int letOrNum = (int) (Math.random() * 2);
-            if (letOrNum == 0) {
-                char c = (char) (randomNum + 48);
-                code = code + c;
-            }else{
-                char c = (char)(randomNum + 65);
-                code = code + c;
-            }
+            int randomNum = (int) (Math.random() * 36);
+            code += characters[randomNum];
         }
         return code;
     }

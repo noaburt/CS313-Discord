@@ -105,12 +105,12 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
 
                     switch (request) {
                         case commonconstants.reqCodes.NEW_CHAT:
-                            while(true){
-                                if(!groups.setListLock(commonconstants.t)){
-                                    continue;
-                                }
-                                break;
-                            }
+//                            while(true){
+//                                if(!groups.setListLock(commonconstants.t)){
+//                                    continue;
+//                                }
+//                                break;
+//                            }
                             /* Client has requested new chat */
                             String code;
                             if(receivedData.get("status").equals("BREAKER")) {
@@ -174,12 +174,12 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
 
 
                         case commonconstants.reqCodes.NEW_USER:
-                            while(true){
-                            if(!users.setListLock(commonconstants.t)){
-                                continue;
-                            }
-                            break;
-                            }
+//                            while(true){
+//                            if(!users.setListLock(commonconstants.t)){
+//                                continue;
+//                            }
+//                            break;
+//                            }
 
                             if(createUser(receivedData)){
                                 data = makeData(clientName,receivedData.get("code"),commonconstants.reqCodes.NEW_USER_CONF,"VALID","");

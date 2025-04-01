@@ -95,6 +95,14 @@ public class NotSoSimpleClientLoginPage extends form{
                         }).start();
                         String registerName = textComponentList.get("uNameField").getText();
                         String registerPassword = textComponentList.get("uPWordField").getText();
+
+                        if (!isValidPassword(registerPassword)) {
+                            JOptionPane.showMessageDialog(null,
+                                    "Password must be at least 8 characters and include a number and a symbol.",
+                                    "Weak Password", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
                         if(!registerName.isEmpty() && !registerPassword.isEmpty()) {
                             client.checkNameNotUsed(registerName, registerPassword);
                             do {
@@ -135,20 +143,19 @@ public class NotSoSimpleClientLoginPage extends form{
 
     public String bensWonderfulFunction(){
         String code = "";
+        String[] characters = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
+                ,"0","1","2","3","4","5","6","7","8","9"};
         for(int counter = 0; counter < 21; counter++) {
 
-            int randomNum = (int) (Math.random() * 10);
-            int randomLet = (int) (Math.random() * 26);
-            int letOrNum = (int) (Math.random() * 2);
-            if (letOrNum == 0) {
-                char c = (char) (randomNum + 48);
-                code = code + c;
-            }else{
-                char c = (char)(randomNum + 65);
-                code = code + c;
-            }
+            int randomNum = (int) (Math.random() * 36);
+            code += characters[randomNum];
         }
         return code;
     }
+
+    public static boolean isValidPassword(String password) {
+        return password.matches("^(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$");
+    }
+
 
 }

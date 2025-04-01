@@ -102,6 +102,7 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                     HashMap<String, String> data;
                     String sendMsg;
                     user U;
+                    String toShow;
 
                     switch (request) {
                         case commonconstants.reqCodes.NEW_CHAT:
@@ -118,6 +119,8 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                             }else{
                                 code = createRoom();
                             }
+
+                            groups.getGroup(code).addMessage(receivedData.get("name") + ": Has created this room");
                             data = makeData(clientName,code,commonconstants.reqCodes.NEW_CHAT_CONF,"","");
                             sendMsg = packageData("", data);
                             sendToClient(sendMsg);
@@ -128,6 +131,9 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                         case commonconstants.reqCodes.LEAVE:
                             /* Resend goodbye message and leave chatroom */
                             resendMessage(inputLine);
+                            data = new HashMap<>();
+                            toShow = unpackageData(inputLine, data);
+                            groups.getGroup(receivedData.get("code")).addMessage(data.get("name") + ": " + toShow);
                             break;
 
                         case commonconstants.reqCodes.DISCONNECT:
@@ -138,22 +144,24 @@ public class NotSoSimpleServer extends NotSoSimpleClient {
                         case commonconstants.reqCodes.NONE:
                             /* Resent message to all clients as normal */
 
-                            G = groups.getGroup(receivedData.get("code"));
-                            data = new HashMap<>();
-                            String toShow = unpackageData(inputLine, data);
 
-                            G.addMessage(data.get("name") + ": " + toShow);
+                            data = new HashMap<>();
+                            toShow = unpackageData(inputLine, data);
+                            groups.getGroup(receivedData.get("code")).addMessage(data.get("name") + ": " + toShow);
                             resendMessage(inputLine);
                             break;
 
                         case commonconstants.reqCodes.NEW_CHAT_CONF, commonconstants.reqCodes.NEW_USER_CONF
-                        ,commonconstants.reqCodes.LOGIN_CONF:
+                                ,commonconstants.reqCodes.LOGIN_CONF:
                             /* Client is not allowed to do this */
                             throw new IllegalAccessException();
 
                         case commonconstants.reqCodes.EXISTING_CHAT:
                             G = groups.getGroup(receivedData.get("code"));
                             String chatCode = (G != null) ? receivedData.get("code") : "F";
+                            if(G != null && !chatCode.equals("F")) {
+                                G.addMessage(receivedData.get("name") + ": Has joined the room");
+                            }
                             data = makeData(clientName, chatCode, commonconstants.reqCodes.EXISTING_CHAT,"","");
                             sendMsg = packageData("", data);
                             sendToClient(sendMsg);
