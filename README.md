@@ -1,13 +1,7 @@
 # CS313-Discord
 
-This is the repository for our NotSoSimple.group CS313 - Computer Systems and Concurency assignment
+This is the repository for our group CS313 - Computer Systems and Concurency assignment
 
-stage 3
+# Project Brief
 
-create NotSoSimple.group chat
-
-actually using the NotSoSimple.group chat 
-
-storing messages
-
-
+The project brief is found in the ```/docs``` directory. This project was designed to assist in learning Networking and Concurency fundamentals, while exploring additional features in Java.
